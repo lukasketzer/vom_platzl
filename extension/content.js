@@ -4,8 +4,7 @@
   const HERO_ID = 'vom-platzl-hero-section';
   const TEST_MODE = true;
   // Added very common words to ensure it triggers for almost any test search
-  let testRules = ['ps5', 'playstation', 'nintendo', 'lego', 'nike', 'schuhe', 'pfanne', 'shirt', 'hose', 'sneaker'];
-  
+
   // Store configuration
   const STORE_IMAGE_URL = ''; // Set your store image URL here
   const STORE_LATITUDE = 48.1351; // Munich coordinates (default)
@@ -17,48 +16,6 @@
   const C_BG_LIGHT = '#FFFDF5';
 
   console.log('🦁 Vom Platzl: "Brute Force" Hero Mode Loaded.');
-
-  // --- UTILITIES ---
-
-  function isShoppingPage() {
-    // Relaxed check to ensure it runs on almost any google results page for testing
-    return location.href.includes('google');
-  }
-
-  async function fetchRules() {
-    if (TEST_MODE) return testRules;
-    try {
-      const res = await fetch(`${BACKEND}/rules`);
-      return res.ok ? await res.json() : [];
-    } catch (e) { return []; }
-  }
-
-  function collectProductTexts() {
-    const texts = new Set();
-    // Aggressive selector list
-    const selectors = [
-      'h3', 'div[role="heading"]', '.sh-dgr__grid-result', 'span'
-    ];
-    document.querySelectorAll(selectors.join(',')).forEach(el => {
-      const t = el.innerText && el.innerText.trim();
-      if (t && t.length > 2 && t.length < 100) texts.add(t);
-    });
-    return Array.from(texts);
-  }
-
-  function matchRules(productTexts, rules) {
-    const matches = [];
-    const lowered = rules.map(r => (r || '').toLowerCase());
-    productTexts.forEach(pt => {
-      const lpt = (pt || '').toLowerCase();
-      lowered.forEach(rule => {
-        if (rule && lpt.includes(rule)) {
-          matches.push({rule, text: pt});
-        }
-      });
-    });
-    return matches;
-  }
 
   // --- THE HERO SECTION (BRUTE FORCE INJECTION) ---
 
@@ -80,10 +37,10 @@
     // STRATEGY: Find the main content area, but we'll break out of its constraints
     // #center_col = The main center column in standard Search
     // #search = The container for results
-    const mainContent = document.querySelector('#center_col') 
-                     || document.querySelector('#search') 
-                     || document.querySelector('#rso') 
-                     || document.querySelector('div[role="main"]');
+    const mainContent = document.querySelector('#center_col')
+      || document.querySelector('#search')
+      || document.querySelector('#rso')
+      || document.querySelector('div[role="main"]');
 
     if (!mainContent) {
       console.log("🦁 Vom Platzl: CRITICAL - No injection target found.");
@@ -107,7 +64,7 @@
     // Create the search result block (styled like Google search results)
     const hero = document.createElement('div');
     hero.id = HERO_ID;
-    
+
     hero.style.cssText = `
       width: 100%;
       max-width: 100%;
@@ -125,9 +82,8 @@
       overflow-x: hidden;
     `;
 
-    const uniqueMatches = [...new Set(matches.map(m => m.rule))];
     const mapsUrl = `https://www.google.com/maps?q=${STORE_LATITUDE},${STORE_LONGITUDE}`;
-    
+
     // Generate interactive map embed URL with route
     let embedMapUrl;
     if (userLocation && userLocation.lat && userLocation.lng) {
@@ -135,7 +91,7 @@
     } else {
       embedMapUrl = getStoreEmbedUrl();
     }
-    
+
     hero.innerHTML = `
       <div style="display: flex; align-items: center; gap: 20px; max-width: 100%; justify-content: space-between; width: 100%;">
         <!-- Left: Image -->
@@ -152,10 +108,10 @@
           flex-shrink: 0;
           overflow: hidden;
         ">
-          ${STORE_IMAGE_URL ? 
-            `<img src="${STORE_IMAGE_URL}" alt="Store" style="width: 100%; height: 100%; object-fit: cover;" />` : 
-            '🦁'
-          }
+          ${STORE_IMAGE_URL ?
+        `<img src="${STORE_IMAGE_URL}" alt="Store" style="width: 100%; height: 100%; object-fit: cover;" />` :
+        '🦁'
+      }
         </div>
         
         <!-- Middle: Text Content -->
@@ -191,8 +147,8 @@
             line-height: 1.3;
             color: #4d5156;
           ">
-            We detected you're searching for <strong>${uniqueMatches.slice(0, 3).join(', ')}</strong>. 
-            Discover <strong style="color: #1a0dab;">${matches.length} local options</strong> in Munich. 
+            We detected shopping intent for <strong>${uniqueMatches.slice(0, 3).join(', ')}</strong>. 
+            Discover <strong style="color: #1a0dab;">${Array.isArray(matches) ? matches.length : 0} local options</strong> in Munich. 
             Shop local, support Munich businesses, and find exactly what you need nearby.
           </div>
           
@@ -264,7 +220,7 @@
 
     // Wrap the hero in the full-width wrapper
     wrapper.appendChild(hero);
-    
+
     // THE BRUTE FORCE: Insert as the very first child of the target
     // This pushes everything else down.
     mainContent.prepend(wrapper);
@@ -288,7 +244,7 @@
         resolve(null);
         return;
       }
-      
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           resolve({
@@ -306,32 +262,287 @@
   }
 
   async function run() {
-    // If searching for "shoes", ensure matches exist
-    const rules = await fetchRules();
-    const productTexts = collectProductTexts();
-    const matches = matchRules(productTexts, rules);
-    
-    if (matches.length > 0) {
-      console.log(`🦁 Found ${matches.length} matches.`);
-      // Get user location for directions
+    // Check shopping intent placeholder — the hero is shown only when this is true.
+    const shoppingIntent = isLikelyShoppingPage(document.body);
+    if (shoppingIntent) {
+      console.log('vom-platzl: shoppingIntent=true — injecting hero section');
       const userLocation = await getUserLocation();
-      injectHeroSection(matches, userLocation);
+      // we no longer rely on matches; pass an empty array for compatibility
+      injectHeroSection([], userLocation);
     } else {
-      console.log("🦁 No matches found. (Try searching 'nike' or 'lego')");
+      // remove existing hero if present
+      const existing = document.getElementById(HERO_ID);
+      if (existing) existing.remove();
+      console.log('vom-platzl: shoppingIntent=false — not injecting hero');
     }
   }
 
-  // Observer to keep it there if Google redraws the page
-  const observer = new MutationObserver(() => {
-    if (!document.getElementById(HERO_ID)) {
-      run();
+  // Watch for dynamic changes in search results and re-run matching (debounced)
+  const debouncedRun = debounce(run, 350);
+  const observer = new MutationObserver(mutations => {
+    // If new nodes are added, re-run the matcher
+    for (const m of mutations) {
+      if (m.addedNodes && m.addedNodes.length > 0) {
+        debouncedRun();
+        return;
+      }
     }
   });
 
-  const root = document.body;
-  if (root) observer.observe(root, {childList: true, subtree: true});
-  
-  // Initial trigger
-  setTimeout(run, 1000);
+  // Start observing a sensible root element (search results area) or body as fallback
+  function startObserver() {
+    const root = document.querySelector('main, #search, #rso, body');
+    if (root) {
+      try {
+        observer.observe(root, { childList: true, subtree: true });
+        console.log('vom-platzl: observing DOM changes for dynamic results');
+      } catch (e) {
+        console.warn('vom-platzl: failed to observe DOM,', e);
+      }
+    }
+  }
 
+  // start observing immediately
+  startObserver();
+
+  // Basic click-to-show-product-name functionality
+  function extractTitleFromCard(card) {
+    if (!card) return null;
+    const titleSelectors = ['h3', 'h4', '[role="heading"]', '.shntl', '.sh-ct__title', 'span'];
+    for (const sel of titleSelectors) {
+      const el = card.querySelector(sel);
+      if (el && el.innerText && el.innerText.trim().length > 0) return el.innerText.trim();
+    }
+    // fallback: textContent of the card trimmed
+    const txt = card.textContent && card.textContent.trim();
+    if (txt && txt.length > 0) return txt.split('\n')[0].trim();
+    return null;
+  }
+
+  function showToast(text) {
+    if (!text) return;
+    try {
+      const id = 'vom-platzl-toast';
+      let t = document.getElementById(id);
+      if (t) t.remove();
+      t = document.createElement('div');
+      t.id = id;
+      t.style.position = 'fixed';
+      t.style.bottom = '18px';
+      t.style.right = '18px';
+      t.style.zIndex = '1000000';
+      t.style.padding = '10px 14px';
+      t.style.background = 'rgba(0,0,0,0.8)';
+      t.style.color = 'white';
+      t.style.borderRadius = '8px';
+      t.style.fontFamily = 'Arial, sans-serif';
+      t.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+      t.innerText = text;
+      document.body.appendChild(t);
+      setTimeout(() => {
+        t && t.remove();
+      }, 3500);
+    } catch (e) {
+      console.log('vom-platzl toast:', text);
+    }
+  }
+
+  document.addEventListener('click', function (ev) {
+    try {
+      const cardSelectors = ['.sh-dgr__grid-result', '.sh-dlr__list-result', 'g-inner-card', 'div[data-attrid^="shopping_results"]', 'div[data-attrid*="product"]', 'div[jscontroller]'];
+      let el = ev.target;
+      // climb up the DOM to find a matching card
+      while (el && el !== document.body) {
+        if (el.matches) {
+          for (const sel of cardSelectors) {
+            if (el.matches(sel)) {
+              const title = extractTitleFromCard(el) || extractTitleFromCard(ev.target.closest('a'));
+              if (title) {
+                // insert the product name into the card's HTML
+                insertLabelIntoCard(el, title);
+                showToast(title);
+                // expose last clicked product
+                try { window.vomPlatzl = window.vomPlatzl || {}; window.vomPlatzl.lastClicked = title; } catch (e) { }
+                return;
+              }
+            }
+          }
+        }
+        el = el.parentElement;
+      }
+    } catch (e) {
+      console.warn('vom-platzl click handler error', e);
+    }
+  }, true);
+
+  // Insert a small label/badge into the clicked product card's HTML
+  function insertLabelIntoCard(card, text) {
+    if (!card || !text) return;
+    try {
+      // remove previous labels
+      const prev = card.querySelector('.vom-platzl-inline-label');
+      if (prev) prev.remove();
+
+      // ensure card can contain absolutely positioned badge
+      const prevPos = card.style.position;
+      if (!prevPos || prevPos === '' || prevPos === 'static') {
+        card.dataset.vomPlatzlPrevPos = 'static';
+        card.style.position = 'relative';
+      }
+
+      const badge = document.createElement('div');
+      badge.className = 'vom-platzl-inline-label';
+      badge.innerText = text;
+      badge.style.position = 'absolute';
+      badge.style.top = '8px';
+      badge.style.right = '8px';
+      badge.style.zIndex = '999999';
+      badge.style.background = 'rgba(255,215,74,0.95)';
+      badge.style.color = '#111';
+      badge.style.padding = '6px 8px';
+      badge.style.borderRadius = '6px';
+      badge.style.fontSize = '12px';
+      badge.style.fontWeight = '600';
+      badge.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
+      badge.style.maxWidth = '60%';
+      badge.style.overflow = 'hidden';
+      badge.style.textOverflow = 'ellipsis';
+      badge.style.whiteSpace = 'nowrap';
+
+      card.appendChild(badge);
+
+      // remove badge after timeout
+      setTimeout(() => {
+        try { badge.remove(); } catch (e) { }
+      }, 5000);
+    } catch (e) {
+      console.warn('vom-platzl: failed to insert label into card', e);
+    }
+  }
+
+  // expose a small dev API so you can change rules and trigger runs from the console
+  try {
+    window.vomPlatzl = window.vomPlatzl || {};
+    window.vomPlatzl.setTestRules = function (arr) {
+      if (!Array.isArray(arr)) return console.warn('vom-platzl: setTestRules expects an array');
+      testRules = arr.map(String);
+      console.log('vom-platzl: testRules updated', testRules);
+    };
+    window.vomPlatzl.run = run;
+  } catch (e) {
+    // ignore in strict environments
+  }
+
+  // Run on initial load and also on navigation events (single-page nav)
+  run();
+  // observe URL changes (history API) to re-run
+  let lastUrl = location.href;
+  setInterval(() => {
+    if (location.href !== lastUrl) {
+      lastUrl = location.href;
+      run();
+    }
+  }, 1000);
 })();
+
+
+function insertTestBanner() {
+  // Prevent duplicates if your script runs multiple times
+  if (document.getElementById("local-booster-test-banner")) return;
+
+  const banner = document.createElement("div");
+  banner.id = "local-booster-test-banner";
+
+  banner.textContent = "Test Banner – Your Shopping Enhancement is Active";
+
+  // Basic styling so it looks like a real banner
+  Object.assign(banner.style, {
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100%",
+    padding: "12px 16px",
+    background: "#ffcc00",
+    color: "#000",
+    fontSize: "16px",
+    fontWeight: "bold",
+    textAlign: "center",
+    zIndex: "999999",        // Ensure it's above everything
+    borderBottom: "2px solid #000",
+    fontFamily: "Arial, sans-serif"
+  });
+
+  document.body.appendChild(banner);
+
+  // Push page content down so banner doesn't cover it
+  document.body.style.marginTop = "50px";
+}
+
+
+
+// -------- Shopping Intent ------------
+
+/**
+ * Checks the DOM for elements highly specific to Google Shopping results.
+ * This can confirm transactional intent even if the URL doesn't contain tbm=shop.
+ * NOTE: Selectors must be found by inspecting the actual Google SERP HTML.
+ * * @returns {boolean} True if the page contains visible shopping-specific elements.
+ */
+function isLikelyShoppingPage(root = document.body) {
+    try {
+        // 1. Check the URL for explicit shopping indicators
+        const url = (location && location.href) ? location.href.toLowerCase() : '';
+        if (url.includes('/shopping') || url.includes('tbm=shop')) return true;
+
+        // 2. Look for shopping-specific UI elements (localized text or known containers)
+        const sponsoredLabel = findElementContainingText("gesponserte produkte", root) || findElementContainingText("sponsored products", root);
+        if (sponsoredLabel) return true;
+
+        const selectors = [
+            '.sh-dgr__grid-result',
+            '.sh-dlr__list-result',
+            'g-inner-card',
+            '[data-attrid^="shopping_results"]',
+            '[data-attrid*="product"]',
+            'a[href*="/shopping"]'
+        ];
+        for (const sel of selectors) {
+            if (root.querySelector && root.querySelector(sel)) return true;
+        }
+
+        return false;
+    } catch (e) {
+        console.warn('shopping_intent: error in isLikelyShoppingPage', e);
+        return false;
+    }
+}
+
+/**
+ * Utility function to find the first element on the page containing the specified text.
+ * @param {string} text The text string to search for.
+ * @param {HTMLElement} root The root element to search within (defaults to document.body).
+ * @returns {HTMLElement | null} The matching element or null if not found.
+ */
+function findElementContainingText(text, root = document.body) {
+    // 1. Create a TreeWalker to traverse the DOM efficiently
+    const walker = document.createTreeWalker(
+        root, 
+        NodeFilter.SHOW_TEXT,
+        null, 
+        false
+    );
+
+    let node;
+    const lowerCaseText = text.toLowerCase();
+
+    while (node = walker.nextNode()) {
+        if (node.textContent && node.textContent.toLowerCase().includes(lowerCaseText)) {
+            console.log(node)
+            return node;
+        }
+    }
+
+    return null;
+}
+
+
