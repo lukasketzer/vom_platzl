@@ -77,7 +77,7 @@
       || document.querySelector('div[role="main"]');
 
     if (!mainContent) {
-      console.log("🦁 Vom Platzl: CRITICAL - No injection target found.");
+      console.log("Vom Platzl: CRITICAL - No injection target found.");
       return;
     } else {
       console.log("main content", mainContent)
@@ -180,7 +180,6 @@
             letter-spacing: 0.5px;
             margin-bottom: 8px;
           ">
-            <span>✨</span>
             <span>In deiner Nähe verfügbar</span>
           </div>
           
@@ -273,7 +272,7 @@
       </div>
       
       <!-- Minimize Button (hidden until expanded) -->
-      <button id="vp-minimize-btn" class="vp-close-btn" style="display:none; position:absolute; top:16px; right:16px; background:${C_PRIMARY}; color:#fff; border:0; padding:8px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; z-index:20; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);">✕ Schließen</button>
+      <button id="vp-minimize-btn" class="vp-close-btn" style="display:none; position:absolute; top:16px; right:16px; background:${C_PRIMARY}; color:#fff; border:0; padding:8px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; z-index:20; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);">X Schließen</button>
     `;
 
     // Wrap the hero in the full-width wrapper
@@ -418,7 +417,7 @@
     // This pushes everything else down.
     const body = document.body
     mainContent.parentElement.prepend(wrapper);
-    console.log("🦁 Vom Platzl: Search result block injected into", mainContent);
+    console.log("Vom Platzl: Search result block injected into", mainContent);
     
     // If we already have data, update immediately
     if (data) {
@@ -621,7 +620,7 @@
                   font-size: 13px;
                   color: ${C_TEXT_SECONDARY};
                   margin-bottom: 4px;
-                ">📍 ${place.tags.vicinity}</div>
+                ">${place.tags.vicinity}</div>
               ` : ''}
               ${place.distance ? `
                 <div style="
@@ -668,7 +667,7 @@
             color: ${C_TEXT_SECONDARY};
             margin-bottom: 12px;
           ">
-            <div style="font-weight: 600; margin-bottom: 6px; color: ${C_TEXT};">🕒 Öffnungszeiten</div>
+            <div style="font-weight: 600; margin-bottom: 6px; color: ${C_TEXT};">Öffnungszeiten</div>
             ${place.opening_hours.weekday_text ? place.opening_hours.weekday_text.map(day => 
               `<div style="padding: 2px 0; padding-left: 16px;">${day}</div>`
             ).join('') : ''}
@@ -702,7 +701,6 @@
                transition: all 0.2s ease;
              "
              class="vp-maps-link">
-            <span>📍</span>
             <span>In Google Maps öffnen</span>
           </a>
         </div>
@@ -772,7 +770,7 @@
     // Update iframe with directions from user location to first place
     const embedMapUrl = getDirectionsEmbedUrl(userLocation.lat, userLocation.lng, destLat, destLng);
     iframe.src = embedMapUrl;
-    console.log("🦁 Vom Platzl: Map updated with user location and first place destination (sorted by distance)");
+    console.log("Vom Platzl: Map updated with user location and first place destination (sorted by distance)");
   }
 
   function injectStickyHeader() {
@@ -785,7 +783,7 @@
       || document.querySelector('body');
 
     if (!searchContainer) {
-      console.log("🦁 Vom Platzl Header: No injection target found.");
+      console.log("Vom Platzl Header: No injection target found.");
       return;
     }
 
@@ -883,7 +881,7 @@
 
     document.body.insertBefore(header, document.body.firstChild);
 
-    console.log("🦁 Vom Platzl: Header injected");
+    console.log("Vom Platzl: Header injected");
   }
 
   // --- RUNNER ---
@@ -911,13 +909,13 @@
     try {
       const response = await fetch('https://ipapi.co/json/');
       if (!response.ok) {
-        console.log("🦁 IP geolocation request failed");
+        console.log("IP geolocation request failed");
         return null;
       }
       
       const data = await response.json();
       if (data.latitude && data.longitude) {
-        console.log("🦁 IP geolocation success:", data.city, data.country_name);
+        console.log("IP geolocation success:", data.city, data.country_name);
         return {
           lat: data.latitude,
           lng: data.longitude,
@@ -926,10 +924,10 @@
         };
       }
       
-      console.log("🦁 IP geolocation: no coordinates in response");
+      console.log("IP geolocation: no coordinates in response");
       return null;
     } catch (error) {
-      console.log("🦁 IP geolocation error:", error.message);
+      console.log("IP geolocation error:", error.message);
       return null;
     }
     */
