@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Vom Platzl Shopping Banner",
+  "name": "Vom Platzl",
   "version": "0.1.0",
-  "description": "Shows a banner on Google Shopping when certain products are present.",
+  "description": "Reimpower Local Stores",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": [
     "https://www.google.com/*",
@@ -24,5 +24,8 @@
       "resources": ["query_analysis.js", "Silhouette_of_Munich.svg-removebg-preview.png", "logo.png"],
       "matches": ["<all_urls>"]
     }
-  ]
+  ],
+  "icons": {
+    "128": "logo-128.png"
+  }
 }
