@@ -30,7 +30,8 @@
         width: 100%;
         background: ${ORANGE_COLOR};
         color: #ffffff; /* White text for contrast on orange background */
-        padding: 16px 32px;
+        padding: 0 32px;
+        height: 60px;
         /* z-index removed as it is less critical for relative, but kept just in case */
         z-index: 10000; 
         display: flex;
@@ -97,10 +98,25 @@
         button.style.background = 'rgba(255, 255, 255, 0.2)';
       });
   
-      // Assemble header - button first (left), then text (right)
+      // Create image element for Munich silhouette
+      const imageElement = document.createElement('img');
+      imageElement.src = chrome.runtime.getURL('Silhouette_of_Munich.svg-removebg-preview.png');
+      imageElement.alt = 'Munich Skyline';
+      imageElement.style.cssText = `
+        height: 50px;
+        width: auto;
+        margin-left: 16px;
+        margin-top: 10px;
+        object-fit: contain;
+        filter: brightness(0) invert(1); /* Makes the silhouette white */
+        display: block;
+      `;
+
+      // Assemble header - button first (left), then text (center), then image (right)
       header.appendChild(button);
       header.appendChild(textContainer);
-  
+      header.appendChild(imageElement);
+
       // Insert header at the top of the body
       // Since it is 'relative', it will naturally push the content down.
       document.body.insertBefore(header, document.body.firstChild);
