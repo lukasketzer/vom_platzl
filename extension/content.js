@@ -1,6 +1,7 @@
 (function () {
   // --- CONFIGURATION ---
   const HERO_ID = 'vom-platzl-hero-section';
+  const HEADER_ID = 'vom-platzl-sticky-header';
 
   // Store configuration
   const STORE_IMAGE_URL = ''; // Set your store image URL here
@@ -12,7 +13,7 @@
   const C_PRIMARY_LIGHT = '#3b82f6';
   const C_PRIMARY_DARK = '#1e40af';
   const C_ACCENT = '#10b981';       // Fresh green
-  const C_BG = '#ffffff';
+  const C_BG = '#40c6f7';
   const C_BG_SECONDARY = '#f8fafc';
   const C_TEXT = '#0f172a';
   const C_TEXT_SECONDARY = '#64748b';
@@ -104,7 +105,7 @@
       border-radius: 12px;
       overflow: hidden;
       overflow-x: hidden;
-      background: linear-gradient(135deg, ${C_BG} 0%, ${C_BG_SECONDARY} 100%);
+      background: ${C_BG};
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     `;
@@ -122,7 +123,7 @@
     let data_html = `<ul style="list-style-type: disc; padding-left: 20px; margin: 0;">`;
     const places = data.places || [];
     const maxStores = Math.min(5, places.length);
-    for (let i = 0; i < maxStores; i++) { 
+    for (let i = 0; i < maxStores; i++) {
       const place = places[i];
       const element_html = `<li style="margin-bottom: 4px; color: ${C_TEXT};">${place.name || 'Unknown Store'} - ${place.distance || ''}</li>`;
       data_html += element_html;
@@ -151,7 +152,6 @@
         '🦁'
       }
         </div>
-        ${data_html}
         
         <!-- Middle: Text Content -->
         <div style="flex: 1; min-width: 0; max-width: 100%; padding: 0 16px;">
@@ -222,9 +222,23 @@
       <!-- Expanded Content (hidden until expanded) -->
       <div class="vp-expanded-section" style="display: none; margin-top: 24px;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start;">
-          <!-- Left: Empty placeholder -->
-          <div class="vp-placeholder" style="min-height: 400px;">
-            <!-- Empty space -->
+          <!-- Left: Places List -->
+          <div class="vp-places-list" style="
+            background: white;
+            border: 2px solid ${C_BORDER};
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          ">
+            <h4 style="
+              margin: 0 0 16px 0;
+              font-size: 18px;
+              font-weight: 600;
+              color: ${C_TEXT};
+            ">
+              Verfügbare Geschäfte
+            </h4>
+            ${data_html}
           </div>
           
           <!-- Right: Interactive Route Map -->
@@ -260,12 +274,12 @@
     // Add event listeners for buttons (CSP-compliant)
     const primaryBtn = hero.querySelector('.vp-primary-btn');
     if (primaryBtn) {
-      primaryBtn.addEventListener('mouseenter', function() {
+      primaryBtn.addEventListener('mouseenter', function () {
         this.style.background = C_PRIMARY_DARK;
         this.style.transform = 'translateY(-1px)';
         this.style.boxShadow = '0 4px 8px rgba(37, 99, 235, 0.3)';
       });
-      primaryBtn.addEventListener('mouseleave', function() {
+      primaryBtn.addEventListener('mouseleave', function () {
         this.style.background = C_PRIMARY;
         this.style.transform = 'translateY(0)';
         this.style.boxShadow = '0 2px 4px rgba(37, 99, 235, 0.2)';
@@ -274,11 +288,11 @@
 
     const secondaryBtn = hero.querySelector('.vp-secondary-btn');
     if (secondaryBtn) {
-      secondaryBtn.addEventListener('mouseenter', function() {
+      secondaryBtn.addEventListener('mouseenter', function () {
         this.style.backgroundColor = C_BG_SECONDARY;
         this.style.textDecoration = 'none';
       });
-      secondaryBtn.addEventListener('mouseleave', function() {
+      secondaryBtn.addEventListener('mouseleave', function () {
         this.style.backgroundColor = 'transparent';
         this.style.textDecoration = 'none';
       });
@@ -286,11 +300,11 @@
 
     const closeBtn = hero.querySelector('.vp-close-btn');
     if (closeBtn) {
-      closeBtn.addEventListener('mouseenter', function() {
+      closeBtn.addEventListener('mouseenter', function () {
         this.style.background = C_PRIMARY_DARK;
         this.style.transform = 'scale(1.05)';
       });
-      closeBtn.addEventListener('mouseleave', function() {
+      closeBtn.addEventListener('mouseleave', function () {
         this.style.background = C_PRIMARY;
         this.style.transform = 'scale(1)';
       });
@@ -395,6 +409,104 @@
     console.log("🦁 Vom Platzl: Search result block injected into", mainContent);
   }
 
+  function injectStickyHeader() {
+    // Prevent duplicate headers
+    if (document.getElementById(HEADER_ID)) return;
+
+    // Find the Google search container or create header at top of page
+    const searchContainer = document.querySelector('#searchform')
+      || document.querySelector('form[action="/search"]')
+      || document.querySelector('body');
+
+    if (!searchContainer) {
+      console.log("🦁 Vom Platzl Header: No injection target found.");
+      return;
+    }
+
+    // Create the header (now Non-Sticky)
+    const header = document.createElement('div');
+    header.id = HEADER_ID;
+
+    header.style.cssText = `
+        position: relative; /* CHANGED: relative allows it to scroll with the page */
+        width: 100%;
+        background: ${C_BG};
+        color: #333333; /* CHANGED: Dark text for contrast on light background */
+        padding: 16px 32px;
+        /* z-index removed as it is less critical for relative, but kept just in case */
+        z-index: 10000; 
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-family: arial, sans-serif;
+        font-size: 14px;
+        box-sizing: border-box; /* Added to ensure padding doesn't overflow width */
+      `;
+
+    // Create text container
+    const textContainer = document.createElement('div');
+    textContainer.style.cssText = `
+        flex: 1;
+        display: flex;
+        align-items: center;
+        width: 100%;
+      `;
+
+    // Create text element
+    const textElement = document.createElement('span');
+    textElement.style.cssText = `
+        font-size: 18px;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+        padding: 0 20px;
+        width: 100%;
+        display: block;
+      `;
+    textElement.textContent = 'Auf Lager bei einem Local Hero!';
+
+    textContainer.appendChild(textElement);
+
+    // Create button with lion emoji
+    const button = document.createElement('button');
+
+    // CHANGED: Button colors adjusted for Light Background (Darker borders/bg)
+    button.style.cssText = `
+        background: rgba(0, 0, 0, 0.05); /* Dark transparent bg */
+        border: 1px solid rgba(0, 0, 0, 0.1); /* Dark transparent border */
+        color: #333333; /* Dark emoji/text */
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-right: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 36px;
+      `;
+    button.textContent = '🦁';
+    button.setAttribute('aria-label', 'Vom Platzl');
+
+    // Button hover effect (adjusted for light theme)
+    button.addEventListener('mouseenter', () => {
+      button.style.background = 'rgba(0, 0, 0, 0.1)';
+    });
+    button.addEventListener('mouseleave', () => {
+      button.style.background = 'rgba(0, 0, 0, 0.05)';
+    });
+
+    // Assemble header - button first (left), then text (right)
+    header.appendChild(button);
+    header.appendChild(textContainer);
+
+    document.body.insertBefore(header, document.body.firstChild);
+
+    console.log("🦁 Vom Platzl: Header injected");
+  }
+
   // --- RUNNER ---
 
   function getGoogleSearchQuery() {
@@ -437,8 +549,9 @@
     if (shoppingIntent) {
       console.log('vom-platzl: shoppingIntent=true — injecting hero section');
 
+      injectStickyHeader();
+
       const query = getGoogleSearchQuery();
-      console.log('vom-platzl: query extracted:', query);
 
       // Pass query and hardcoded IP
       const data = await getData(query, '8.8.8.8', '')
@@ -467,46 +580,6 @@
 })();
 
 
-function insertTestBanner() {
-  // Prevent duplicates if your script runs multiple times
-  if (document.getElementById("local-booster-test-banner")) return;
-
-  const banner = document.createElement("div");
-  banner.id = "local-booster-test-banner";
-
-  banner.innerHTML = `
-    <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-      <span style="font-size: 20px;">✅</span>
-      <span>Vom Platzl Extension aktiv – Lokale Produkte werden hervorgehoben</span>
-    </div>
-  `;
-
-  // Modern banner styling
-  Object.assign(banner.style, {
-    position: "fixed",
-    top: "0",
-    left: "0",
-    width: "100%",
-    padding: "14px 20px",
-    background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-    color: "#ffffff",
-    fontSize: "15px",
-    fontWeight: "600",
-    textAlign: "center",
-    zIndex: "999999",
-    borderBottom: "none",
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-    backdropFilter: "blur(10px)"
-  });
-
-  document.body.appendChild(banner);
-
-  // Push page content down so banner doesn't cover it
-  document.body.style.marginTop = "52px";
-}
-
-
 
 // -------- Shopping Intent ------------
 
@@ -517,32 +590,32 @@ function insertTestBanner() {
  * * @returns {boolean} True if the page contains visible shopping-specific elements.
  */
 function isLikelyShoppingPage(root = document.body) {
-    try {
-        // 1. Check the URL for explicit shopping indicators
-        const url = (location && location.href) ? location.href.toLowerCase() : '';
-        if (url.includes('/shopping') || url.includes('tbm=shop')) return true;
+  try {
+    // 1. Check the URL for explicit shopping indicators
+    const url = (location && location.href) ? location.href.toLowerCase() : '';
+    if (url.includes('/shopping') || url.includes('tbm=shop')) return true;
 
-        // 2. Look for shopping-specific UI elements (localized text or known containers)
-        const sponsoredLabel = findElementContainingText("gesponserte produkte", root) || findElementContainingText("sponsored products", root);
-        if (sponsoredLabel) return true;
+    // 2. Look for shopping-specific UI elements (localized text or known containers)
+    const sponsoredLabel = findElementContainingText("gesponserte produkte", root) || findElementContainingText("sponsored products", root);
+    if (sponsoredLabel) return true;
 
-        const selectors = [
-            '.sh-dgr__grid-result',
-            '.sh-dlr__list-result',
-            'g-inner-card',
-            '[data-attrid^="shopping_results"]',
-            '[data-attrid*="product"]',
-            'a[href*="/shopping"]'
-        ];
-        for (const sel of selectors) {
-            if (root.querySelector && root.querySelector(sel)) return true;
-        }
-
-        return false;
-    } catch (e) {
-        console.warn('shopping_intent: error in isLikelyShoppingPage', e);
-        return false;
+    const selectors = [
+      '.sh-dgr__grid-result',
+      '.sh-dlr__list-result',
+      'g-inner-card',
+      '[data-attrid^="shopping_results"]',
+      '[data-attrid*="product"]',
+      'a[href*="/shopping"]'
+    ];
+    for (const sel of selectors) {
+      if (root.querySelector && root.querySelector(sel)) return true;
     }
+
+    return false;
+  } catch (e) {
+    console.warn('shopping_intent: error in isLikelyShoppingPage', e);
+    return false;
+  }
 }
 
 /**
@@ -552,25 +625,25 @@ function isLikelyShoppingPage(root = document.body) {
  * @returns {HTMLElement | null} The matching element or null if not found.
  */
 function findElementContainingText(text, root = document.body) {
-    // 1. Create a TreeWalker to traverse the DOM efficiently
-    const walker = document.createTreeWalker(
-        root, 
-        NodeFilter.SHOW_TEXT,
-        null, 
-        false
-    );
+  // 1. Create a TreeWalker to traverse the DOM efficiently
+  const walker = document.createTreeWalker(
+    root,
+    NodeFilter.SHOW_TEXT,
+    null,
+    false
+  );
 
-    let node;
-    const lowerCaseText = text.toLowerCase();
+  let node;
+  const lowerCaseText = text.toLowerCase();
 
-    while (node = walker.nextNode()) {
-        if (node.textContent && node.textContent.toLowerCase().includes(lowerCaseText)) {
-            console.log(node)
-            return node;
-        }
+  while (node = walker.nextNode()) {
+    if (node.textContent && node.textContent.toLowerCase().includes(lowerCaseText)) {
+      console.log(node)
+      return node;
     }
+  }
 
-    return null;
+  return null;
 }
 
 
