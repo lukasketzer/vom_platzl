@@ -200,25 +200,7 @@
             align-items: center;
             flex-wrap: wrap;
           ">
-            <a href="${mapsUrl}" target="_blank" class="vp-primary-btn" style="
-              background: ${C_PRIMARY};
-              color: white;
-              text-decoration: none;
-              padding: 10px 20px;
-              border-radius: 8px;
-              font-weight: 600;
-              font-size: 14px;
-              cursor: pointer;
-              display: inline-flex;
-              align-items: center;
-              gap: 8px;
-              white-space: nowrap;
-              transition: all 0.2s ease;
-              box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
-            ">
-              <span>📍</span>
-              <span>Route anzeigen</span>
-            </a>
+
             
             <a href="#" class="vp-secondary-btn" style="
               color: ${C_PRIMARY};
