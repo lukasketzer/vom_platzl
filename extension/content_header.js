@@ -2,8 +2,8 @@
     'use strict';
   
     const HEADER_ID = 'vom-platzl-sticky-header';
-    // CHANGED: Light Blue color
-    const BLUE_COLOR = '#3b82f6'; 
+    // Warm orange color
+    const ORANGE_COLOR = '#ff9b54'; 
   
     console.log('🦁 Vom Platzl: Header Loaded.');
   
@@ -28,15 +28,15 @@
       header.style.cssText = `
         position: relative; /* CHANGED: relative allows it to scroll with the page */
         width: 100%;
-        background: ${BLUE_COLOR};
-        color: #333333; /* CHANGED: Dark text for contrast on light background */
+        background: ${ORANGE_COLOR};
+        color: #ffffff; /* White text for contrast on orange background */
         padding: 16px 32px;
         /* z-index removed as it is less critical for relative, but kept just in case */
         z-index: 10000; 
         display: flex;
         align-items: center;
         justify-content: space-between;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px rgba(255, 155, 84, 0.2);
         font-family: arial, sans-serif;
         font-size: 14px;
         box-sizing: border-box; /* Added to ensure padding doesn't overflow width */
@@ -55,11 +55,12 @@
       const textElement = document.createElement('span');
       textElement.style.cssText = `
         font-size: 18px;
-        font-weight: 500;
+        font-weight: 600;
         letter-spacing: 0.3px;
         padding: 0 20px;
         width: 100%;
         display: block;
+        color: #ffffff;
       `;
       textElement.textContent = 'Auf Lager bei einem Local Hero!';
       
@@ -68,11 +69,11 @@
       // Create button with lion emoji
       const button = document.createElement('button');
       
-      // CHANGED: Button colors adjusted for Light Background (Darker borders/bg)
+      // CHANGED: Button colors adjusted for orange background
       button.style.cssText = `
-        background: rgba(0, 0, 0, 0.05); /* Dark transparent bg */
-        border: 1px solid rgba(0, 0, 0, 0.1); /* Dark transparent border */
-        color: #333333; /* Dark emoji/text */
+        background: rgba(255, 255, 255, 0.2); /* Light transparent bg */
+        border: 1px solid rgba(255, 255, 255, 0.3); /* Light transparent border */
+        color: #ffffff; /* White emoji/text */
         padding: 8px 16px;
         border-radius: 20px;
         font-size: 18px;
@@ -88,12 +89,12 @@
       button.textContent = '🦁';
       button.setAttribute('aria-label', 'Vom Platzl');
       
-      // Button hover effect (adjusted for light theme)
+      // Button hover effect (adjusted for orange background)
       button.addEventListener('mouseenter', () => {
-        button.style.background = 'rgba(0, 0, 0, 0.1)';
+        button.style.background = 'rgba(255, 255, 255, 0.3)';
       });
       button.addEventListener('mouseleave', () => {
-        button.style.background = 'rgba(0, 0, 0, 0.05)';
+        button.style.background = 'rgba(255, 255, 255, 0.2)';
       });
   
       // Assemble header - button first (left), then text (right)

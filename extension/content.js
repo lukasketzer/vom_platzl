@@ -8,16 +8,16 @@
   const STORE_LATITUDE = 48.1351; // Munich coordinates (default)
   const STORE_LONGITUDE = 11.5820;
 
-  // Modern Brand Colors
-  const C_PRIMARY = '#2563eb';      // Modern blue
-  const C_PRIMARY_LIGHT = '#3b82f6';
-  const C_PRIMARY_DARK = '#1e40af';
-  const C_ACCENT = '#10b981';       // Fresh green
-  const C_BG = '#40c6f7';
-  const C_BG_SECONDARY = '#f8fafc';
-  const C_TEXT = '#0f172a';
-  const C_TEXT_SECONDARY = '#64748b';
-  const C_BORDER = '#e2e8f0';
+  // Modern Brand Colors - Warm & Sleek
+  const C_PRIMARY = '#ff9b54';      // Warm orange
+  const C_PRIMARY_LIGHT = '#ffb380';
+  const C_PRIMARY_DARK = '#ff8433';
+  const C_ACCENT = '#ff6b35';       // Vibrant coral
+  const C_BG = '#f8edeb';           // Soft pink/beige
+  const C_BG_SECONDARY = '#ffffff';
+  const C_TEXT = '#2d2d2d';
+  const C_TEXT_SECONDARY = '#757575';
+  const C_BORDER = '#f4dcd6';
 
   // --- THE HERO SECTION (BRUTE FORCE INJECTION) ---
 
@@ -105,17 +105,17 @@
       max-width: 100%;
       box-sizing: border-box;
       margin: 0 auto;
-      padding: 20px 28px;
+      padding: 24px 32px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       position: relative;
       z-index: 10;
       display: block;
-      border: 1px solid ${C_BORDER};
-      border-radius: 12px;
+      border: none;
+      border-radius: 16px;
       overflow: hidden;
       overflow-x: hidden;
       background: ${C_BG};
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 2px 8px rgba(255, 155, 84, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     `;
 
@@ -147,16 +147,16 @@
         <div style="
           width: 96px;
           height: 96px;
-          background: ${C_BG};
-          border: none;
-          border-radius: 16px;
+          background: white;
+          border: 2px solid ${C_BORDER};
+          border-radius: 20px;
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 48px;
           flex-shrink: 0;
           overflow: hidden;
-          box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+          box-shadow: 0 4px 12px rgba(255, 155, 84, 0.1);
         ">
           ${STORE_IMAGE_URL ?
         `<img src="${STORE_IMAGE_URL}" alt="Store" style="width: 100%; height: 100%; object-fit: cover;" />` :
@@ -172,13 +172,14 @@
             gap: 8px;
             background: ${C_ACCENT};
             color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
+            padding: 6px 14px;
+            border-radius: 24px;
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
+            letter-spacing: 0.8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 6px rgba(255, 107, 53, 0.25);
           ">
             <span>In deiner Nähe verfügbar</span>
           </div>
@@ -216,11 +217,12 @@
               color: ${C_PRIMARY};
               text-decoration: none;
               font-size: 14px;
-              font-weight: 500;
+              font-weight: 600;
               cursor: pointer;
-              padding: 10px 16px;
-              border-radius: 8px;
+              padding: 10px 18px;
+              border-radius: 10px;
               transition: all 0.2s ease;
+              background: rgba(255, 155, 84, 0.08);
             ">
               Alle Geschäfte anzeigen →
             </a>
@@ -244,9 +246,9 @@
             height: 100%;
             min-height: 400px;
             border: 2px solid ${C_BORDER};
-            border-radius: 12px;
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(255, 155, 84, 0.08);
             position: sticky;
             top: 20px;
           ">
@@ -265,7 +267,7 @@
       </div>
       
       <!-- Minimize Button (hidden until expanded) -->
-      <button id="vp-minimize-btn" class="vp-close-btn" style="display:none; position:absolute; top:16px; right:16px; background:${C_PRIMARY}; color:#fff; border:0; padding:8px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; z-index:20; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);">X Schließen</button>
+      <button id="vp-minimize-btn" class="vp-close-btn" style="display:none; position:absolute; top:20px; right:20px; background:${C_PRIMARY}; color:#fff; border:0; padding:10px 18px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:600; z-index:20; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(255, 155, 84, 0.3);">✕ Schließen</button>
     `;
 
     // Wrap the hero in the full-width wrapper
@@ -277,12 +279,12 @@
       primaryBtn.addEventListener('mouseenter', function () {
         this.style.background = C_PRIMARY_DARK;
         this.style.transform = 'translateY(-1px)';
-        this.style.boxShadow = '0 4px 8px rgba(37, 99, 235, 0.3)';
+        this.style.boxShadow = '0 4px 12px rgba(255, 155, 84, 0.35)';
       });
       primaryBtn.addEventListener('mouseleave', function () {
         this.style.background = C_PRIMARY;
         this.style.transform = 'translateY(0)';
-        this.style.boxShadow = '0 2px 4px rgba(37, 99, 235, 0.2)';
+        this.style.boxShadow = '0 2px 6px rgba(255, 155, 84, 0.25)';
       });
     }
 
@@ -291,10 +293,12 @@
       closeBtn.addEventListener('mouseenter', function () {
         this.style.background = C_PRIMARY_DARK;
         this.style.transform = 'scale(1.05)';
+        this.style.boxShadow = '0 4px 12px rgba(255, 155, 84, 0.4)';
       });
       closeBtn.addEventListener('mouseleave', function () {
         this.style.background = C_PRIMARY;
         this.style.transform = 'scale(1)';
+        this.style.boxShadow = '0 2px 8px rgba(255, 155, 84, 0.3)';
       });
     }
 
@@ -308,15 +312,16 @@
           cursor: pointer;
         }
         #${HERO_ID}:hover { 
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+          box-shadow: 0 4px 12px rgba(255, 155, 84, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
           transform: translateY(-2px);
         }
         #${HERO_ID}.vp-expanded { 
           width: 100% !important;
           background: ${C_BG};
-          padding: 32px 40px !important;
+          padding: 36px 48px !important;
           cursor: default;
           transform: translateY(0) !important;
+          box-shadow: 0 4px 16px rgba(255, 155, 84, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         #${HERO_ID}.vp-expanded:hover {
           transform: translateY(0) !important;
@@ -555,7 +560,7 @@
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: ${openNow ? C_ACCENT : '#ef4444'};
+          background: ${openNow ? '#4caf50' : '#f44336'};
           margin-right: 8px;
         "></span>` : '';
       
@@ -564,13 +569,14 @@
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 8px 12px;
+          padding: 12px 16px;
           background: white;
-          border-radius: 8px;
+          border-radius: 12px;
           font-size: 14px;
           color: ${C_TEXT};
           transition: all 0.2s ease;
           cursor: pointer;
+          border: 1px solid ${C_BORDER};
         " class="vp-place-mini" data-lat="${place.lat}" data-lon="${place.lon}">
           <div style="display: flex; align-items: center;">
             ${openIndicator}
@@ -596,9 +602,9 @@
         <div style="
           background: white;
           border: 1px solid ${C_BORDER};
-          border-radius: 12px;
-          padding: 16px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          border-radius: 14px;
+          padding: 20px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
           transition: all 0.2s ease;
           cursor: pointer;
         " class="vp-place-card" data-lat="${place.lat}" data-lon="${place.lon}">
@@ -638,9 +644,9 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 12px;
-            background: ${openNow ? '#ecfdf5' : '#fef2f2'};
-            border-radius: 8px;
+            padding: 10px 14px;
+            background: ${openNow ? '#e8f5e9' : '#ffebee'};
+            border-radius: 10px;
             margin-bottom: 12px;
           ">
             <span style="
@@ -648,12 +654,12 @@
               width: 8px;
               height: 8px;
               border-radius: 50%;
-              background: ${openNow ? C_ACCENT : '#ef4444'};
+              background: ${openNow ? '#4caf50' : '#f44336'};
             "></span>
             <span style="
               font-size: 13px;
-              font-weight: 500;
-              color: ${openNow ? '#059669' : '#dc2626'};
+              font-weight: 600;
+              color: ${openNow ? '#2e7d32' : '#c62828'};
             ">${openNow ? 'Jetzt geöffnet' : getTimeUntilOpening(place.opening_hours)}</span>
           </div>
           
@@ -686,14 +692,15 @@
                display: inline-flex;
                align-items: center;
                gap: 6px;
-               color: ${C_PRIMARY};
+               color: white;
                text-decoration: none;
                font-size: 14px;
-               font-weight: 500;
-               padding: 8px 16px;
-               background: ${C_BG_SECONDARY};
-               border-radius: 8px;
+               font-weight: 600;
+               padding: 10px 18px;
+               background: ${C_PRIMARY};
+               border-radius: 10px;
                transition: all 0.2s ease;
+               box-shadow: 0 2px 6px rgba(255, 155, 84, 0.25);
              "
              class="vp-maps-link">
             <span>In Google Maps öffnen</span>
@@ -709,12 +716,14 @@
     const miniCards = container.querySelectorAll('.vp-place-mini');
     miniCards.forEach(card => {
       card.addEventListener('mouseenter', function() {
-        this.style.background = C_BG_SECONDARY;
+        this.style.background = 'rgba(255, 155, 84, 0.04)';
         this.style.transform = 'translateX(4px)';
+        this.style.borderColor = C_PRIMARY_LIGHT;
       });
       card.addEventListener('mouseleave', function() {
         this.style.background = 'white';
         this.style.transform = 'translateX(0)';
+        this.style.borderColor = C_BORDER;
       });
       
       // Add click handler to update map directions
@@ -729,12 +738,14 @@
     const placeCards = container.querySelectorAll('.vp-place-card');
     placeCards.forEach(card => {
       card.addEventListener('mouseenter', function() {
-        this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
-        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 4px 12px rgba(255, 155, 84, 0.15), 0 2px 6px rgba(0, 0, 0, 0.05)';
+        this.style.transform = 'translateY(-3px)';
+        this.style.borderColor = C_PRIMARY_LIGHT;
       });
       card.addEventListener('mouseleave', function() {
-        this.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+        this.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
         this.style.transform = 'translateY(0)';
+        this.style.borderColor = C_BORDER;
       });
       
       // Add click handler to update map directions (but not on links)
@@ -751,12 +762,14 @@
     const mapsLinks = container.querySelectorAll('.vp-maps-link');
     mapsLinks.forEach(link => {
       link.addEventListener('mouseenter', function() {
-        this.style.background = C_PRIMARY;
-        this.style.color = 'white';
+        this.style.background = C_PRIMARY_DARK;
+        this.style.transform = 'translateY(-1px)';
+        this.style.boxShadow = '0 4px 10px rgba(255, 155, 84, 0.35)';
       });
       link.addEventListener('mouseleave', function() {
-        this.style.background = C_BG_SECONDARY;
-        this.style.color = C_PRIMARY;
+        this.style.background = C_PRIMARY;
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '0 2px 6px rgba(255, 155, 84, 0.25)';
       });
     });
   }
