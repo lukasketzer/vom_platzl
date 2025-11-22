@@ -67,36 +67,18 @@
       
       textContainer.appendChild(textElement);
   
-      // Create button with lion emoji
-      const button = document.createElement('button');
-      
-      // CHANGED: Button colors adjusted for orange background
-      button.style.cssText = `
-        background: rgba(255, 255, 255, 0.2); /* Light transparent bg */
-        border: 1px solid rgba(255, 255, 255, 0.3); /* Light transparent border */
-        color: #ffffff; /* White emoji/text */
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 18px;
-        cursor: pointer;
-        transition: background 0.2s;
+      // Create logo image
+      const logoImage = document.createElement('img');
+      logoImage.src = chrome.runtime.getURL('logo.png');
+      logoImage.alt = 'Vom Platzl Logo';
+      logoImage.style.cssText = `
+        height: 40px;
+        width: auto;
         margin-right: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 40px;
-        height: 36px;
+        cursor: pointer;
+        object-fit: contain;
       `;
-      button.textContent = '🦁';
-      button.setAttribute('aria-label', 'Vom Platzl');
-      
-      // Button hover effect (adjusted for orange background)
-      button.addEventListener('mouseenter', () => {
-        button.style.background = 'rgba(255, 255, 255, 0.3)';
-      });
-      button.addEventListener('mouseleave', () => {
-        button.style.background = 'rgba(255, 255, 255, 0.2)';
-      });
+      logoImage.setAttribute('aria-label', 'Vom Platzl');
   
       // Create image element for Munich silhouette
       const imageElement = document.createElement('img');
@@ -106,14 +88,14 @@
         height: 50px;
         width: auto;
         margin-left: 16px;
-        margin-top: 10px;
+        margin-top: 13px;
         object-fit: contain;
         filter: brightness(0) invert(1); /* Makes the silhouette white */
         display: block;
       `;
 
-      // Assemble header - button first (left), then text (center), then image (right)
-      header.appendChild(button);
+      // Assemble header - logo first (left), then text (center), then skyline image (right)
+      header.appendChild(logoImage);
       header.appendChild(textContainer);
       header.appendChild(imageElement);
 

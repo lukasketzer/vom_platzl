@@ -21,7 +21,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["query_analysis.js", "Silhouette_of_Munich.svg-removebg-preview.png"],
+      "resources": ["query_analysis.js", "Silhouette_of_Munich.svg-removebg-preview.png", "logo.png"],
       "matches": ["<all_urls>"]
     }
   ]

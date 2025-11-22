@@ -160,7 +160,7 @@
         ">
           ${STORE_IMAGE_URL ?
         `<img src="${STORE_IMAGE_URL}" alt="Store" style="width: 100%; height: 100%; object-fit: cover;" />` :
-        '🦁'
+        `<img src="${chrome.runtime.getURL('logo.png')}" alt="Vom Platzl Logo" style="width: 100%; height: 100%; object-fit: cover; padding: 8px;" />`
       }
         </div>
         
@@ -905,7 +905,12 @@
         min-width: 40px;
         height: 36px;
       `;
-    button.textContent = '🦁';
+    
+    const logoImg = document.createElement('img');
+    logoImg.src = chrome.runtime.getURL('logo.png');
+    logoImg.alt = 'Vom Platzl Logo';
+    logoImg.style.cssText = 'height: 32px; width: auto; object-fit: contain;';
+    button.appendChild(logoImg);
     button.setAttribute('aria-label', 'Vom Platzl');
 
     // Button hover effect (adjusted for light theme)

@@ -190,9 +190,9 @@ def get_nearby_places(lat_str, lon_str, place_type: StoreType, radius=1500):
     # Check cache
     cache_key = f"google_places:{lat_str}:{lon_str}:{place_type_val}:{radius}"
     cached_places = redis_client.get(cache_key)
-    # if cached_places:
-    #     print('============== CACHE HIT ==============')
-    #     return json.loads(cached_places)
+    if cached_places:
+        print('============== CACHE HIT ==============')
+        return json.loads(cached_places)
 
     print('============== CACHE MISS ==============')
 
