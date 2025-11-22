@@ -285,18 +285,6 @@
       });
     }
 
-    const secondaryBtn = hero.querySelector('.vp-secondary-btn');
-    if (secondaryBtn) {
-      secondaryBtn.addEventListener('mouseenter', function () {
-        this.style.backgroundColor = C_BG_SECONDARY;
-        this.style.textDecoration = 'none';
-      });
-      secondaryBtn.addEventListener('mouseleave', function () {
-        this.style.backgroundColor = 'transparent';
-        this.style.textDecoration = 'none';
-      });
-    }
-
     const closeBtn = hero.querySelector('.vp-close-btn');
     if (closeBtn) {
       closeBtn.addEventListener('mouseenter', function () {
@@ -342,6 +330,10 @@
         /* Show expanded section when expanded */
         #${HERO_ID}.vp-expanded .vp-expanded-section { 
           display: block !important;
+        }
+        /* Hide the secondary button when expanded */
+        #${HERO_ID}.vp-expanded .vp-secondary-btn { 
+          display: none !important;
         }
         #vp-minimize-btn { 
           transition: all 0.2s ease;
