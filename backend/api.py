@@ -102,6 +102,45 @@ def get_ip_location(ip_address):
     else:
         return "HTTP Request failed"
 
+def get_distance(lat1, lon1, lat2, lon2):
+    """
+    Calculate distance between two coordinates using Haversine formula.
+    Returns formatted distance string (e.g., "150 m" or "2.3 km")
+    """
+    from math import radians, sin, cos, atan2, sqrt, ceil
+    
+    # Mean Earth Radius in Kilometers
+    R = 6371
+    
+    # Convert degrees to radians
+    lat1_rad = radians(lat1)
+    lat2_rad = radians(lat2)
+    
+    # Difference in latitude and longitude
+    d_lat = radians(lat2 - lat1)
+    d_lon = radians(lon2 - lon1)
+    
+    # Apply Haversine formula
+    a = sin(d_lat / 2) ** 2 + cos(lat1_rad) * cos(lat2_rad) * sin(d_lon / 2) ** 2
+    
+    # Calculate central angle
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    
+    # Calculate final distance in kilometers
+    distance_km = R * c
+    
+    # Convert to meters for formatting
+    distance_meters = distance_km * 1000
+    
+    # Format distance string
+    if distance_meters < 1000:
+        # Show meters rounded up
+        return f"{ceil(distance_meters)} m"
+    else:
+        # Show kilometers rounded up to 1 decimal place
+        km_rounded_up = ceil(distance_km * 10) / 10
+        return f"{km_rounded_up:.1f} km"
+
 def get_place_details(place_id, api_key):
     url = "https://maps.googleapis.com/maps/api/place/details/json"
     params = {
@@ -178,11 +217,15 @@ def get_nearby_places(lat, lon, place_type: StoreType, radius=1000):
                 details = get_place_details(place_id, api_key)
 
             if lat_val and lon_val:
+                # Calculate distance from search location to this place
+                distance_str = get_distance(float(lat), float(lon), lat_val, lon_val)
+                
                 place = {
                     "name": name,
                     "type": place_type_val,
                     "lat": lat_val,
                     "lon": lon_val,
+                    "distance": distance_str,
                     "tags": {"name": name, "vicinity": result.get("vicinity")},
                     "image_url": image_url,
                     "rating": result.get("rating"),
@@ -201,15 +244,13 @@ def get_nearby_places(lat, lon, place_type: StoreType, radius=1000):
         return []
 
 @app.get("/get_places")
-def get_places(request: Request, query: str, adresse: Optional[str] = None, ip: Optional[str] = None):
+def get_places(request: Request, query: str, lat: str = '48.14595042226794', lon: str = '11.574998090542195'):
     # TODO: Implement address lookup if 'adresse' is provided
     # client_ip = ip or request.client.host
     # current_location = get_ip_location(client_ip)
 
     # Hardcoded location (Munich) - preserving original behavior
     # In the future, use current_location['lat'] and current_location['lon']
-    lat = '48.14595042226794'
-    lon = '11.574998090542195'
 
     store_type = classify_query(query)
     nearby_places = get_nearby_places(lat, lon, store_type, radius=1500)

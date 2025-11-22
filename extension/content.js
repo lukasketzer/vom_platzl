@@ -525,6 +525,7 @@
         <div style="
           display: flex;
           align-items: center;
+          justify-content: space-between;
           padding: 8px 12px;
           background: white;
           border-radius: 8px;
@@ -532,8 +533,11 @@
           color: ${C_TEXT};
           transition: all 0.2s ease;
         " class="vp-place-mini">
-          ${openIndicator}
-          <span style="font-weight: 500;">${place.name || 'Unbekanntes Geschäft'}</span>
+          <div style="display: flex; align-items: center;">
+            ${openIndicator}
+            <span style="font-weight: 500;">${place.name || 'Unbekanntes Geschäft'}</span>
+          </div>
+          ${place.distance ? `<span style="font-size: 12px; color: ${C_TEXT_SECONDARY}; font-weight: 500;">${place.distance}</span>` : ''}
         </div>
       `;
     }
@@ -572,6 +576,13 @@
                   color: ${C_TEXT_SECONDARY};
                   margin-bottom: 4px;
                 ">📍 ${place.tags.vicinity}</div>
+              ` : ''}
+              ${place.distance ? `
+                <div style="
+                  font-size: 13px;
+                  color: ${C_TEXT_SECONDARY};
+                  font-weight: 500;
+                ">${place.distance}</div>
               ` : ''}
               ${rating ? `
                 <div style="
