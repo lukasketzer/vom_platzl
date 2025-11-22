@@ -17,30 +17,47 @@ load_dotenv()
 
 # Redis cache setup
 redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
-BLACKLIST = {'Lidl', 'Aldi', 'McDonald\'s', 'Starbucks', 'Subway', 'KFC', 'Burger King', 'IKEA', 'H&M', 'Zara', 'MediaMarkt', 'Saturn', 'DM', 'Rossmann', 'Edeka', 'Rewe', 'Netto'}
+BLACKLIST = {'Lidl', 'Aldi', 'McDonald\'s', 'Starbucks', 'Subway', 'KFC', 'Burger King', 'IKEA', 'H&M', 'Zara', 'MediaMarkt', 'Saturn', 'DM', 'Rossmann', 'Edeka', 'Rewe', 'Netto', "Decathlon"}
 BLACKLIST = {s.lower() for s in BLACKLIST}
 
 class StoreType(str, Enum):
-    SUPERMARKET = "supermarket"
-    CONVENIENCE = "convenience_store"
-    BAKERY = "bakery"
-    BUTCHER = "store"
-    CLOTHES = "clothing_store"
-    ELECTRONICS = "electronics_store"
-    BOOKS = "book_store"
-    ALCOHOL = "liquor_store"
-    BEVERAGES = "liquor_store"
-    CHEMIST = "pharmacy"
+    CAR_DEALER = "car_dealer"
+    GAS_STATION = "gas_station"
+
+    ART_GALLERY = "art_gallery"
+
+    LIBRARY = "library"
+
+    WINE_BAR = "wine_bar"
+
     DRUGSTORE = "drugstore"
-    DEPARTMENT_STORE = "department_store"
-    KIOSK = "convenience_store"
-    GREENGROCER = "grocery_or_supermarket"
-    HARDWARE = "hardware_store"
-    FURNITURE = "furniture_store"
-    SHOES = "shoe_store"
-    SPORTS = "sporting_goods_store"
-    GIFT = "home_goods_store"
+    PHARMACY = "pharmacy"
+
     FLORIST = "florist"
+    STORAGE = "storage"
+    TAILOR = "tailor"
+    TOUR_AGENCY = "tour_agency"
+    TOURIST_INFORMATION_CENTER = "tourist_information_center"
+    TRAVEL_AGENCY = "travel_agency"
+
+    BICYCLE_STORE = "bicycle_store"
+    BOOK_STORE = "book_store"
+    CLOTHING_STORE = "clothing_store"
+    CONVENIENCE_STORE = "convenience_store"
+    DEPARTMENT_STORE = "department_store"
+    ELECTRONICS_STORE = "electronics_store"
+    FURNITURE_STORE = "furniture_store"
+    GREENGROCER = "grocery_or_supermarket"
+    HARDWARE_STORE = "hardware_store"
+    HOME_GOODS_STORE = "home_goods_store"
+    JEWELRY_STORE = "jewelry_store"
+    LIQUOR_STORE = "liquor_store"
+    PET_STORE = "pet_store"
+    SHOE_STORE = "shoe_store"
+    SHOPPING_MALL = "shopping_mall"
+    SPORTING_GOODS_STORE = "sporting_goods_store"
+    GENERAL_STORE = "store"
+    SUPERMARKET = "supermarket"
 
 app = FastAPI()
 
@@ -103,6 +120,8 @@ def get_ip_location(ip_address):
         return "HTTP Request failed"
 
 def get_place_details(place_id, api_key):
+    # Note: Using the legacy endpoint for Place Details as v1 details are more complex
+    # and the fields used here are simple.
     url = "https://maps.googleapis.com/maps/api/place/details/json"
     params = {
         "place_id": place_id,
@@ -118,64 +137,88 @@ def get_place_details(place_id, api_key):
         print(f"Error fetching place details: {e}")
     return {}
 
-def get_nearby_places(lat, lon, place_type: StoreType, radius=1000):
+def get_nearby_places(lat_str, lon_str, place_type: StoreType, radius=1500):
     place_type_val = place_type.value
+    
+    # Convert lat/lon strings to floats for the request body
+    try:
+        lat = float(lat_str)
+        lon = float(lon_str)
+    except ValueError:
+        print("Invalid latitude or longitude format.")
+        return []
 
     # Check cache
-    cache_key = f"google_places:{lat}:{lon}:{place_type_val}:{radius}"
+    cache_key = f"google_places:{lat_str}:{lon_str}:{place_type_val}:{radius}"
     cached_places = redis_client.get(cache_key)
-    if cached_places:
-        print('============== CACHE HIT ==============')
-        return json.loads(cached_places)
+    # if cached_places:
+    #     print('============== CACHE HIT ==============')
+    #     return json.loads(cached_places)
 
     print('============== CACHE MISS ==============')
 
     api_key = os.environ.get("GOOGLE_API_KEY")
-    google_type = place_type_val
     
-    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
-    params = {
-        "location": f"{lat},{lon}",
-        "radius": radius,
-        "type": google_type,
-        "key": api_key
+    # === NEW GOOGLE PLACES API V1 ENDPOINT ===
+    url = f"https://places.googleapis.com/v1/places:searchNearby?key={api_key}"
+    
+    # Request Body (POST payload)
+    request_body = {
+        "includedTypes": [place_type_val],
+        "locationRestriction": {
+            "circle": {
+                "center": {
+                    "latitude": lat,
+                    "longitude": lon
+                },
+                "radius": radius  # In meters
+            }
+        },
+        "maxResultCount": 20
     }
-
+    
+    # Mandatory Field Mask Header
+    headers = {
+        "Content-Type": "application/json",
+        "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.location,places.id,places.rating,places.userRatingCount" 
+    }
    
     try:
-        response = requests.get(url, params=params)
+        # Use POST for the new Nearby Search API
+        response = requests.post(url, headers=headers, json=request_body)
         response.raise_for_status()
         data = response.json()
         
         places = []
-        results = data.get('results', [])
+        # Results are now under the 'places' key
+        results = data.get('places', [])
         
-        for i, result in enumerate(results):
-            name = result.get('name', 'Unknown')
+        for result in results:
+            name = result.get('displayName', {}).get('text', 'Unknown')
+            place_id = result.get('id') # Place ID is now 'id' in v1
+            
             # Filter out places which are too famous
-            # define once near BLACKLIST
-
-            # inside loop
             words = name.lower().split()
             prohibited = [word in BLACKLIST for word in words  ]
             if any(prohibited):
                 continue
 
-            location = result.get('geometry', {}).get('location', {})
-            lat_val = location.get('lat')
-            lon_val = location.get('lng')
-            place_id = result.get('place_id')
-            
-            image_url = None
-            if "photos" in result:
-                photo_reference = result["photos"][0]["photo_reference"]
-                image_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference={photo_reference}&key={api_key}"
-
-            # Fetch details for top 3 results to save costs
-            # Note: Place Details requests cost extra (especially for reviews/opening_hours)
+            # Fetch details
             details = {}
             if place_id:
                 details = get_place_details(place_id, api_key)
+
+            reviews_count = details.get("user_ratings_total", 0)
+            if reviews_count < 5 or reviews_count > 2000:
+                continue
+
+            location = result.get('location', {})
+            lat_val = location.get('latitude')
+            lon_val = location.get('longitude')
+            
+            # Image logic removed as requested, leaving image_url as None
+            image_url = None 
+        
 
             if lat_val and lon_val:
                 place = {
@@ -183,19 +226,22 @@ def get_nearby_places(lat, lon, place_type: StoreType, radius=1000):
                     "type": place_type_val,
                     "lat": lat_val,
                     "lon": lon_val,
-                    "tags": {"name": name, "vicinity": result.get("vicinity")},
+                    "tags": {"name": name, "vicinity": result.get("formattedAddress", "N/A")},
                     "image_url": image_url,
-                    "rating": result.get("rating"),
-                    "user_ratings_total": result.get("user_ratings_total"),
+                    "rating": result.get("rating"), 
+                    "user_ratings_total": result.get("userRatingCount"), 
                     "opening_hours": details.get("opening_hours", {}),
                     "reviews": details.get("reviews", []),
-                    "google_maps_url": details.get("url", f"https://www.google.com/maps/search/?api=1&query={name}&query_place_id={place_id}")
+                    "google_maps_url": details.get("url", f"https://maps.google.com/?q={lat_val},{lon_val}&query_place_id={place_id}")
                 }
                 places.append(place)
         
         # Cache the result
         redis_client.setex(cache_key, 3600 * 48, json.dumps(places)) # Cache for 48 hours
         return places
+    except requests.exceptions.HTTPError as errh:
+        print(f"HTTP Error querying Google Places API: {errh}")
+        return []
     except Exception as e:
         print(f"Error querying Google Places API: {e}")
         return []
@@ -208,8 +254,8 @@ def get_places(request: Request, query: str, adresse: Optional[str] = None, ip: 
 
     # Hardcoded location (Munich) - preserving original behavior
     # In the future, use current_location['lat'] and current_location['lon']
-    lat = '48.14595042226794'
-    lon = '11.574998090542195'
+    lat = '48.148687132768494'
+    lon = '11.568617102780685'
 
     store_type = classify_query(query)
     nearby_places = get_nearby_places(lat, lon, store_type, radius=1500)
