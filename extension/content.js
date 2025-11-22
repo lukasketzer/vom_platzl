@@ -8,7 +8,8 @@
   const STORE_LONGITUDE = 11.5820;
 
   // Brand Colors
-  const C_GOLD = '#F2D027';
+  const C_BLUE_LIGHT = '#1c98d5';
+  const C_BLUE = '#005a9f'
   const C_BLACK = '#202124';
   const C_BG_LIGHT = '#FFFDF5';
 
@@ -64,7 +65,6 @@
       box-sizing: border-box;
       margin: 0 auto;
       padding: 16px 24px;
-      background: #ffffff;
       font-family: arial, sans-serif;
       position: relative;
       z-index: 10;
@@ -73,6 +73,7 @@
       border-radius: 8px;
       overflow: hidden;
       overflow-x: hidden;
+      background-color: ${C_BLUE_LIGHT};
     `;
 
     const mapsUrl = `https://www.google.com/maps?q=${STORE_LATITUDE},${STORE_LONGITUDE}`;
@@ -136,7 +137,7 @@
           ">
             <a href="${mapsUrl}" target="_blank" style="
               background: ${C_BLACK};
-              color: ${C_GOLD};
+              color: ${C_BLUE};
               text-decoration: none;
               padding: 6px 12px;
               border-radius: 20px;
@@ -171,7 +172,7 @@
         </div>
         
         <!-- Right: Interactive Route Map -->
-        <div style="
+        <div class="vp-map" style="
           width: 280px;
           max-width: 30%;
           height: 140px;
@@ -180,7 +181,7 @@
           overflow: hidden;
           flex-shrink: 0;
         ">
-          <iframe 
+          <iframe class="vp-iframe"
             src="${embedMapUrl}"
             width="100%"
             height="100%"
@@ -191,11 +192,54 @@
             title="${userLocation && userLocation.lat && userLocation.lng ? 'Route to Store' : 'Store Location'}"
           ></iframe>
         </div>
+        <!-- Minimize Button (hidden until expanded) -->
+        <button id="vp-minimize-btn" style="display:none; position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.6); color:#fff; border:0; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:12px; z-index:20;">Minimize</button>
       </div>
     `;
 
     // Wrap the hero in the full-width wrapper
     wrapper.appendChild(hero);
+
+    // Add minimal CSS for expanded state (idempotent)
+    if (!document.getElementById('vom-platzl-vp-styles')) {
+      const style = document.createElement('style');
+      style.id = 'vom-platzl-vp-styles';
+      style.textContent = `
+        #${HERO_ID} { transition: all 220ms ease-in-out; cursor: pointer; }
+        #${HERO_ID}.vp-expanded { width: 100% !important; background-color: ${C_BG_LIGHT} !important; padding: 20px 28px !important; }
+        #${HERO_ID} .vp-map { transition: all 220ms ease-in-out; }
+        #${HERO_ID}.vp-expanded .vp-map { width: 60% !important; height: 340px !important; max-width: none !important; }
+        #vp-minimize-btn { transition: opacity 160ms ease-in-out; }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // EXPAND / MINIMIZE LOGIC
+    // Expand when clicking anywhere on the hero (per request: ignore inner buttons)
+    hero.addEventListener('click', function (e) {
+      // If already expanded and user clicks hero, do nothing (minimize only via button)
+      if (!hero.classList.contains('vp-expanded')) {
+        hero.classList.add('vp-expanded');
+        const minBtn = hero.querySelector('#vp-minimize-btn');
+        if (minBtn) minBtn.style.display = 'block';
+      }
+    });
+
+    // Minimize button should collapse the hero. Stop propagation so the hero click won't re-expand.
+    const minBtn = hero.querySelector('#vp-minimize-btn');
+    if (minBtn) {
+      minBtn.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        hero.classList.remove('vp-expanded');
+        // restore small map sizing (inline fallback)
+        const map = hero.querySelector('.vp-map');
+        if (map) {
+          map.style.width = '';
+          map.style.height = '';
+        }
+        minBtn.style.display = 'none';
+      });
+    }
 
     // THE BRUTE FORCE: Insert as the very first child of the target
     // This pushes everything else down.
