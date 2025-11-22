@@ -192,7 +192,7 @@
             line-height: 1.5;
             color: ${C_TEXT_SECONDARY};
           ">
-            Finde diese Produkte in Geschäften in deiner Umgebung – schneller und nachhaltiger als Online-Shopping
+            Finde diese Produkte in Geschäften in deiner Umgebung.
           </div>
         
           
@@ -432,6 +432,64 @@
     return opening_hours && opening_hours.open_now === true;
   }
 
+  // Helper function to get time until next opening
+  function getTimeUntilOpening(opening_hours) {
+    if (!opening_hours || !opening_hours.periods) {
+      return 'Geschlossen';
+    }
+
+    const now = new Date();
+    const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const currentTime = now.getHours() * 100 + now.getMinutes(); // e.g., 1430 for 14:30
+
+    // Try to find next opening in the same day or upcoming days
+    for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+      const checkDay = (currentDay + dayOffset) % 7;
+      
+      const periodsForDay = opening_hours.periods.filter(p => p.open.day === checkDay);
+      
+      for (const period of periodsForDay) {
+        const openTime = parseInt(period.open.time);
+        
+        // If it's today and opening time is in the future
+        if (dayOffset === 0 && openTime > currentTime) {
+          const openHour = Math.floor(openTime / 100);
+          const openMinute = openTime % 100;
+          
+          const openDate = new Date(now);
+          openDate.setHours(openHour, openMinute, 0, 0);
+          
+          const diffMs = openDate - now;
+          const diffMinutes = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMinutes / 60);
+          const remainingMinutes = diffMinutes % 60;
+          
+          if (diffHours > 0) {
+            return `Öffnet in ${diffHours}h ${remainingMinutes}min`;
+          } else {
+            return `Öffnet in ${diffMinutes}min`;
+          }
+        }
+        
+        // If it's a future day
+        if (dayOffset > 0) {
+          const dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+          const openHour = Math.floor(openTime / 100);
+          const openMinute = openTime % 100;
+          const timeStr = `${String(openHour).padStart(2, '0')}:${String(openMinute).padStart(2, '0')}`;
+          
+          if (dayOffset === 1) {
+            return `Öffnet morgen um ${timeStr}`;
+          } else {
+            return `Öffnet ${dayNames[checkDay]} um ${timeStr}`;
+          }
+        }
+      }
+    }
+    
+    return 'Geschlossen';
+  }
+
   function updateHeroWithData(data) {
     const container = document.getElementById('vp-places-container');
     if (!container) return;
@@ -525,6 +583,7 @@
             </div>
           </div>
           
+          ${place.opening_hours.weekday_text ? `
           <div style="
             display: flex;
             align-items: center;
@@ -545,15 +604,30 @@
               font-size: 13px;
               font-weight: 500;
               color: ${openNow ? '#059669' : '#dc2626'};
-            ">${openNow ? 'Jetzt geöffnet' : 'Geschlossen'}</span>
+            ">${openNow ? 'Jetzt geöffnet' : getTimeUntilOpening(place.opening_hours)}</span>
           </div>
           
           <div style="
             font-size: 13px;
             color: ${C_TEXT_SECONDARY};
             margin-bottom: 12px;
-            padding-left: 20px;
-          ">🕒 ${todayHours}</div>
+          ">
+            <div style="font-weight: 600; margin-bottom: 6px; color: ${C_TEXT};">🕒 Öffnungszeiten</div>
+            ${place.opening_hours.weekday_text ? place.opening_hours.weekday_text.map(day => 
+              `<div style="padding: 2px 0; padding-left: 16px;">${day}</div>`
+            ).join('') : ''}
+          </div>
+          ` : `
+          <div style="
+            font-size: 13px;
+            color: ${C_TEXT_SECONDARY};
+            font-style: italic;
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            background: ${C_BG_SECONDARY};
+            border-radius: 8px;
+          ">Öffnungszeiten nicht verfügbar</div>
+          `}
           
           <a href="${place.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lon}`}" 
              target="_blank"

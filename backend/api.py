@@ -53,7 +53,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GEMINI_API_KEY = os.environ.get("GOOGLE_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 class Classification(BaseModel):
@@ -107,7 +107,8 @@ def get_place_details(place_id, api_key):
     params = {
         "place_id": place_id,
         "fields": "opening_hours,reviews,rating,user_ratings_total,url",
-        "key": api_key
+        "key": api_key,
+        "language": "de",
     }
     try:
         response = requests.get(url, params=params)
