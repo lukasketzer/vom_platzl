@@ -1,79 +1,48 @@
-// Content script: detects Google Shopping pages, fetches rules from backend and injects a banner
 (function () {
-  // Test-friendly content script for Vom Platzl
-  // - TEST_MODE: if true, use embedded rules so you can test without backend
-  // - Exposes `window.vomPlatzl.setTestRules(arr)` and `window.vomPlatzl.run()` for quick manual tests
-
+  // --- CONFIGURATION ---
   const BACKEND = 'http://localhost:3000';
-  const BANNER_ID = 'vom-platzl-banner';
-
-  // Toggle test mode here. When true, the extension won't call the backend and will use `testRules`.
+  const HERO_ID = 'vom-platzl-hero-section';
   const TEST_MODE = true;
-  let testRules = ['ps5', 'playstation', 'nintendo'];
+  // Added very common words to ensure it triggers for almost any test search
+  let testRules = ['ps5', 'playstation', 'nintendo', 'lego', 'nike', 'schuhe', 'pfanne', 'shirt', 'hose', 'sneaker'];
+  
+  // Store configuration
+  const STORE_IMAGE_URL = ''; // Set your store image URL here
+  const STORE_LATITUDE = 48.1351; // Munich coordinates (default)
+  const STORE_LONGITUDE = 11.5820;
 
-  console.log('vom-platzl content script loaded — TEST_MODE =', TEST_MODE);
+  // Brand Colors
+  const C_GOLD = '#F2D027';
+  const C_BLACK = '#202124';
+  const C_BG_LIGHT = '#FFFDF5';
+
+  console.log('🦁 Vom Platzl: "Brute Force" Hero Mode Loaded.');
+
+  // --- UTILITIES ---
 
   function isShoppingPage() {
-    const url = location.href;
-    // common shopping URL patterns (Google Shop tab / shopping results)
-    return url.includes('/shopping') || url.includes('tbm=shop') || url.includes('/shopping?') || url.includes('/search') && url.includes('tbm=shop');
+    // Relaxed check to ensure it runs on almost any google results page for testing
+    return location.href.includes('google');
   }
 
   async function fetchRules() {
-    if (TEST_MODE) {
-      console.log('vom-platzl: using TEST rules', testRules);
-      return testRules;
-    }
+    if (TEST_MODE) return testRules;
     try {
       const res = await fetch(`${BACKEND}/rules`);
-      if (!res.ok) return [];
-      return await res.json();
-    } catch (e) {
-      console.warn('vom-platzl: Failed to fetch rules', e);
-      return [];
-    }
+      return res.ok ? await res.json() : [];
+    } catch (e) { return []; }
   }
 
   function collectProductTexts() {
     const texts = new Set();
-
-    // Try to find product cards that commonly appear in Google Shopping
-    const cardSelectors = [
-      '.sh-dgr__grid-result',
-      '.sh-dlr__list-result',
-      'g-inner-card',
-      'div[data-attrid^="shopping_results"]',
-      'div[data-attrid*="product"]',
-      'div[jscontroller]'
+    // Aggressive selector list
+    const selectors = [
+      'h3', 'div[role="heading"]', '.sh-dgr__grid-result', 'span'
     ];
-
-    const cards = Array.from(document.querySelectorAll(cardSelectors.join(','))).filter(Boolean);
-
-    // If we found cards, extract likely title nodes from each card
-    if (cards.length > 0) {
-      cards.forEach(card => {
-        // prefer headings inside the card
-        const titleCandidates = card.querySelectorAll('h3, h4, [role="heading"], .shntl, .sh-ct__title, span');
-        for (const el of titleCandidates) {
-          const t = el.innerText && el.innerText.trim();
-          if (t && t.length > 2 && t.length < 200) texts.add(t);
-        }
-      });
-    }
-
-    // Fallback: scan main search area for headings/texts
-    if (texts.size === 0) {
-      const main = document.querySelector('main, #search, #rso');
-      const scope = main || document.body;
-      const fallbackNodes = scope.querySelectorAll('h3, h4, a > div > span, a > div, span');
-      fallbackNodes.forEach(el => {
-        if (el.childElementCount === 0) {
-          const t = el.innerText && el.innerText.trim();
-          if (t && t.length > 2 && t.length < 200) texts.add(t);
-        }
-      });
-    }
-
+    document.querySelectorAll(selectors.join(',')).forEach(el => {
+      const t = el.innerText && el.innerText.trim();
+      if (t && t.length > 2 && t.length < 100) texts.add(t);
+    });
     return Array.from(texts);
   }
 
@@ -91,72 +60,219 @@
     return matches;
   }
 
-  function injectBanner(matches) {
-    if (!matches || matches.length === 0) return;
-    if (document.getElementById(BANNER_ID)) return; // already injected
+  // --- THE HERO SECTION (BRUTE FORCE INJECTION) ---
 
-    const banner = document.createElement('div');
-    banner.id = BANNER_ID;
-    banner.style.position = 'fixed';
-    banner.style.top = '0';
-    banner.style.left = '0';
-    banner.style.right = '0';
-    banner.style.zIndex = '999999';
-    banner.style.background = 'linear-gradient(90deg,#ffd54a,#ff7043)';
-    banner.style.color = '#111';
-    banner.style.padding = '12px 16px';
-    banner.style.display = 'flex';
-    banner.style.alignItems = 'center';
-    banner.style.justifyContent = 'space-between';
-    banner.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
-    banner.style.fontFamily = 'Arial, sans-serif';
-
-    const left = document.createElement('div');
-    left.innerText = `Vom Platzl: ${matches.length} matching product(s) found`;
-    left.style.fontWeight = '600';
-
-    const right = document.createElement('div');
-    right.style.display = 'flex';
-    right.style.gap = '8px';
-
-    const details = document.createElement('button');
-    details.innerText = 'Details';
-    details.style.border = 'none';
-    details.style.background = 'rgba(0,0,0,0.08)';
-    details.style.padding = '6px 10px';
-    details.style.borderRadius = '6px';
-    details.style.cursor = 'pointer';
-
-    const close = document.createElement('button');
-    close.innerText = 'Close';
-    close.style.border = 'none';
-    close.style.background = 'rgba(0,0,0,0.08)';
-    close.style.padding = '6px 10px';
-    close.style.borderRadius = '6px';
-    close.style.cursor = 'pointer';
-
-    details.addEventListener('click', () => {
-      alert(matches.map(m => `rule: "${m.rule}", product: "${m.text}"`).join('\n'));
-    });
-    close.addEventListener('click', () => {
-      banner.remove();
-      // remove added padding
-      document.documentElement.style.paddingTop = '';
-    });
-
-    right.appendChild(details);
-    right.appendChild(close);
-
-    banner.appendChild(left);
-    banner.appendChild(right);
-
-    document.body.appendChild(banner);
-
-    // push body down so content isn't hidden
-    document.documentElement.style.paddingTop = '56px';
+  // Google Maps Embed API with Directions
+  function getDirectionsEmbedUrl(userLat, userLng) {
+    // Interactive Google Maps embed with route directions
+    // This shows an interactive map with the route displayed
+    return `https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_CONFIG.API_KEY}&origin=${userLat},${userLng}&destination=${STORE_LATITUDE},${STORE_LONGITUDE}&zoom=${GOOGLE_MAPS_CONFIG.ZOOM_LEVEL}`;
   }
 
-  // Debounce helper to avoid excessive work during dynamic page updates
+  function getStoreEmbedUrl() {
+    // Interactive map showing store location when user location is not available
+    return `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_CONFIG.API_KEY}&q=${STORE_LATITUDE},${STORE_LONGITUDE}&zoom=14`;
+  }
+
+  function injectHeroSection(matches, userLocation = null) {
+    if (document.getElementById(HERO_ID)) return;
+
+    // STRATEGY: Find the main content area, but we'll break out of its constraints
+    // #center_col = The main center column in standard Search
+    // #search = The container for results
+    const mainContent = document.querySelector('#center_col') 
+                     || document.querySelector('#search') 
+                     || document.querySelector('#rso') 
+                     || document.querySelector('div[role="main"]');
+
+    if (!mainContent) {
+      console.log("🦁 Vom Platzl: CRITICAL - No injection target found.");
+      return;
+    }
+
+    // Create a wrapper that breaks out to full viewport width
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = `
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    `;
+
+    // Create the search result block (styled like Google search results)
+    const hero = document.createElement('div');
+    hero.id = HERO_ID;
+    
+    hero.style.cssText = `
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      margin: 0 auto;
+      padding: 16px 24px;
+      background: #ffffff;
+      font-family: arial, sans-serif;
+      position: relative;
+      z-index: 10;
+      display: block;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      overflow-x: hidden;
+    `;
+
+    const uniqueMatches = [...new Set(matches.map(m => m.rule))];
+    const mapsUrl = `https://www.google.com/maps?q=${STORE_LATITUDE},${STORE_LONGITUDE}`;
+    
+    // Generate interactive map embed URL with route
+    let embedMapUrl;
+    if (userLocation && userLocation.lat && userLocation.lng) {
+      embedMapUrl = getDirectionsEmbedUrl(userLocation.lat, userLocation.lng);
+    } else {
+      embedMapUrl = getStoreEmbedUrl();
+    }
+    
+    hero.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 20px; max-width: 100%; justify-content: space-between; width: 100%;">
+        <!-- Left: Image -->
+        <div style="
+          width: 80px;
+          height: 80px;
+          background: ${C_BG_LIGHT};
+          border: 1px solid #e0e0e0;
+          border-radius: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 32px;
+          flex-shrink: 0;
+          overflow: hidden;
+        ">
+          ${STORE_IMAGE_URL ? 
+            `<img src="${STORE_IMAGE_URL}" alt="Store" style="width: 100%; height: 100%; object-fit: cover;" />` : 
+            '🦁'
+          }
+        </div>
+        
+        <!-- Middle: Text Content -->
+        <div style="flex: 1; min-width: 0; max-width: 100%; padding: 0 12px;">
+          <h3 style="
+            margin: 0 0 3px 0;
+            padding: 0;
+            font-size: 16px;
+            font-weight: normal;
+            line-height: 1.2;
+          ">
+            <a href="#" style="
+              color: #1a0dab;
+              text-decoration: none;
+              cursor: pointer;
+            " onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+              Munich Local Scout - Find ${uniqueMatches.slice(0, 2).join(' & ')} Nearby
+            </a>
+          </h3>
+          
+          <div style="
+            margin: 0 0 3px 0;
+            font-size: 12px;
+            line-height: 1.2;
+            color: #006621;
+          ">
+            vom-platzl.de › local-scout
+          </div>
+          
+          <div style="
+            margin: 0 0 6px 0;
+            font-size: 12px;
+            line-height: 1.3;
+            color: #4d5156;
+          ">
+            We detected you're searching for <strong>${uniqueMatches.slice(0, 3).join(', ')}</strong>. 
+            Discover <strong style="color: #1a0dab;">${matches.length} local options</strong> in Munich. 
+            Shop local, support Munich businesses, and find exactly what you need nearby.
+          </div>
+          
+          <div style="
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+          ">
+            <a href="${mapsUrl}" target="_blank" style="
+              background: ${C_BLACK};
+              color: ${C_GOLD};
+              text-decoration: none;
+              padding: 6px 12px;
+              border-radius: 20px;
+              font-weight: bold;
+              font-size: 11px;
+              cursor: pointer;
+              display: inline-block;
+              white-space: nowrap;
+              transition: background 0.2s;
+            " onmouseover="this.style.background='#303030'" onmouseout="this.style.background='${C_BLACK}'">
+              📍 Open in Maps
+            </a>
+            
+            <a href="#" style="
+              color: #1a0dab;
+              text-decoration: none;
+              font-size: 12px;
+              cursor: pointer;
+            " onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+              View Local Map →
+            </a>
+            <span style="color: #70757a;">·</span>
+            <a href="#" style="
+              color: #1a0dab;
+              text-decoration: none;
+              font-size: 12px;
+              cursor: pointer;
+            " onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+              Browse Stores
+            </a>
+          </div>
+        </div>
+        
+        <!-- Right: Interactive Route Map -->
+        <div style="
+          width: 280px;
+          max-width: 30%;
+          height: 140px;
+          border: 1px solid #e0e0e0;
+          border-radius: 6px;
+          overflow: hidden;
+          flex-shrink: 0;
+        ">
+          <iframe 
+            src="${embedMapUrl}"
+            width="100%"
+            height="100%"
+            style="border:0;"
+            allowfullscreen=""
+            loading="eager"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="${userLocation && userLocation.lat && userLocation.lng ? 'Route to Store' : 'Store Location'}"
+          ></iframe>
+        </div>
+      </div>
+    `;
+
+    // Wrap the hero in the full-width wrapper
+    wrapper.appendChild(hero);
+    
+    // THE BRUTE FORCE: Insert as the very first child of the target
+    // This pushes everything else down.
+    mainContent.prepend(wrapper);
+    console.log("🦁 Vom Platzl: Search result block injected into", mainContent);
+  }
+
+  // --- RUNNER ---
+
   function debounce(fn, wait) {
     let t = null;
     return function (...args) {
@@ -165,195 +281,57 @@
     };
   }
 
+  function getUserLocation() {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        console.log("🦁 Geolocation not supported");
+        resolve(null);
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.log("🦁 Geolocation error:", error.message);
+          resolve(null);
+        },
+        { timeout: 5000, enableHighAccuracy: false }
+      );
+    });
+  }
+
   async function run() {
-    if (!isShoppingPage()) {
-      // For testing, allow manual runs on non-shopping pages too
-      if (!TEST_MODE) return;
-    }
-
+    // If searching for "shoes", ensure matches exist
     const rules = await fetchRules();
-    if (!rules || rules.length === 0) return;
-
     const productTexts = collectProductTexts();
     const matches = matchRules(productTexts, rules);
+    
     if (matches.length > 0) {
-      console.log('vom-platzl: matches found', matches);
-      injectBanner(matches);
+      console.log(`🦁 Found ${matches.length} matches.`);
+      // Get user location for directions
+      const userLocation = await getUserLocation();
+      injectHeroSection(matches, userLocation);
     } else {
-      // remove existing banner if present and no matches
-      const existing = document.getElementById(BANNER_ID);
-      if (existing) {
-        existing.remove();
-        document.documentElement.style.paddingTop = '';
-      }
-      console.log('vom-platzl: no matches (checked', productTexts.length, 'texts)');
+      console.log("🦁 No matches found. (Try searching 'nike' or 'lego')");
     }
   }
 
-  // Watch for dynamic changes in search results and re-run matching (debounced)
-  const debouncedRun = debounce(run, 350);
-  const observer = new MutationObserver(mutations => {
-    // If new nodes are added, re-run the matcher
-    for (const m of mutations) {
-      if (m.addedNodes && m.addedNodes.length > 0) {
-        debouncedRun();
-        return;
-      }
+  // Observer to keep it there if Google redraws the page
+  const observer = new MutationObserver(() => {
+    if (!document.getElementById(HERO_ID)) {
+      run();
     }
   });
 
-  // Start observing a sensible root element (search results area) or body as fallback
-  function startObserver() {
-    const root = document.querySelector('main, #search, #rso, body');
-    if (root) {
-      try {
-        observer.observe(root, {childList: true, subtree: true});
-        console.log('vom-platzl: observing DOM changes for dynamic results');
-      } catch (e) {
-        console.warn('vom-platzl: failed to observe DOM,', e);
-      }
-    }
-  }
+  const root = document.body;
+  if (root) observer.observe(root, {childList: true, subtree: true});
+  
+  // Initial trigger
+  setTimeout(run, 1000);
 
-  // start observing immediately
-  startObserver();
-
-  // Basic click-to-show-product-name functionality
-  function extractTitleFromCard(card) {
-    if (!card) return null;
-    const titleSelectors = ['h3', 'h4', '[role="heading"]', '.shntl', '.sh-ct__title', 'span'];
-    for (const sel of titleSelectors) {
-      const el = card.querySelector(sel);
-      if (el && el.innerText && el.innerText.trim().length > 0) return el.innerText.trim();
-    }
-    // fallback: textContent of the card trimmed
-    const txt = card.textContent && card.textContent.trim();
-    if (txt && txt.length > 0) return txt.split('\n')[0].trim();
-    return null;
-  }
-
-  function showToast(text) {
-    if (!text) return;
-    try {
-      const id = 'vom-platzl-toast';
-      let t = document.getElementById(id);
-      if (t) t.remove();
-      t = document.createElement('div');
-      t.id = id;
-      t.style.position = 'fixed';
-      t.style.bottom = '18px';
-      t.style.right = '18px';
-      t.style.zIndex = '1000000';
-      t.style.padding = '10px 14px';
-      t.style.background = 'rgba(0,0,0,0.8)';
-      t.style.color = 'white';
-      t.style.borderRadius = '8px';
-      t.style.fontFamily = 'Arial, sans-serif';
-      t.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-      t.innerText = text;
-      document.body.appendChild(t);
-      setTimeout(() => {
-        t && t.remove();
-      }, 3500);
-    } catch (e) {
-      console.log('vom-platzl toast:', text);
-    }
-  }
-
-  document.addEventListener('click', function (ev) {
-    try {
-      const cardSelectors = ['.sh-dgr__grid-result', '.sh-dlr__list-result', 'g-inner-card', 'div[data-attrid^="shopping_results"]', 'div[data-attrid*="product"]', 'div[jscontroller]'];
-      let el = ev.target;
-      // climb up the DOM to find a matching card
-      while (el && el !== document.body) {
-        if (el.matches) {
-          for (const sel of cardSelectors) {
-            if (el.matches(sel)) {
-              const title = extractTitleFromCard(el) || extractTitleFromCard(ev.target.closest('a'));
-              if (title) {
-                // insert the product name into the card's HTML
-                insertLabelIntoCard(el, title);
-                showToast(title);
-                // expose last clicked product
-                try { window.vomPlatzl = window.vomPlatzl || {}; window.vomPlatzl.lastClicked = title; } catch(e){}
-                return;
-              }
-            }
-          }
-        }
-        el = el.parentElement;
-      }
-    } catch (e) {
-      console.warn('vom-platzl click handler error', e);
-    }
-  }, true);
-
-  // Insert a small label/badge into the clicked product card's HTML
-  function insertLabelIntoCard(card, text) {
-    if (!card || !text) return;
-    try {
-      // remove previous labels
-      const prev = card.querySelector('.vom-platzl-inline-label');
-      if (prev) prev.remove();
-
-      // ensure card can contain absolutely positioned badge
-      const prevPos = card.style.position;
-      if (!prevPos || prevPos === '' || prevPos === 'static') {
-        card.dataset.vomPlatzlPrevPos = 'static';
-        card.style.position = 'relative';
-      }
-
-      const badge = document.createElement('div');
-      badge.className = 'vom-platzl-inline-label';
-      badge.innerText = text;
-      badge.style.position = 'absolute';
-      badge.style.top = '8px';
-      badge.style.right = '8px';
-      badge.style.zIndex = '999999';
-      badge.style.background = 'rgba(255,215,74,0.95)';
-      badge.style.color = '#111';
-      badge.style.padding = '6px 8px';
-      badge.style.borderRadius = '6px';
-      badge.style.fontSize = '12px';
-      badge.style.fontWeight = '600';
-      badge.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
-      badge.style.maxWidth = '60%';
-      badge.style.overflow = 'hidden';
-      badge.style.textOverflow = 'ellipsis';
-      badge.style.whiteSpace = 'nowrap';
-
-      card.appendChild(badge);
-
-      // remove badge after timeout
-      setTimeout(() => {
-        try { badge.remove(); } catch (e) {}
-      }, 5000);
-    } catch (e) {
-      console.warn('vom-platzl: failed to insert label into card', e);
-    }
-  }
-
-  // expose a small dev API so you can change rules and trigger runs from the console
-  try {
-    window.vomPlatzl = window.vomPlatzl || {};
-    window.vomPlatzl.setTestRules = function (arr) {
-      if (!Array.isArray(arr)) return console.warn('vom-platzl: setTestRules expects an array');
-      testRules = arr.map(String);
-      console.log('vom-platzl: testRules updated', testRules);
-    };
-    window.vomPlatzl.run = run;
-  } catch (e) {
-    // ignore in strict environments
-  }
-
-  // Run on initial load and also on navigation events (single-page nav)
-  run();
-  // observe URL changes (history API) to re-run
-  let lastUrl = location.href;
-  setInterval(() => {
-    if (location.href !== lastUrl) {
-      lastUrl = location.href;
-      run();
-    }
-  }, 1000);
 })();
