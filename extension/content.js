@@ -527,6 +527,12 @@
     
     let places = data.places || [];
     
+    // Debug logging to see what data we have
+    console.log('Vom Platzl: Places data received:', places);
+    places.forEach((place, index) => {
+      console.log(`Place ${index}:`, place.name, 'Distance:', place.distance);
+    });
+    
     // Sort places by distance (nearest first)
     places = places.sort((a, b) => {
       const distA = getDistanceValue(a.distance);
@@ -582,7 +588,7 @@
             ${openIndicator}
             <span style="font-weight: 500;">${place.name || 'Unbekanntes Geschäft'}</span>
           </div>
-          ${place.distance ? `<span style="font-size: 12px; color: ${C_TEXT_SECONDARY}; font-weight: 500;">${place.distance}</span>` : ''}
+          <span style="font-size: 12px; color: ${C_TEXT_SECONDARY}; font-weight: 500;">${place.distance || 'N/A'}</span>
         </div>
       `;
     }
@@ -623,13 +629,11 @@
                   margin-bottom: 4px;
                 ">${place.tags.vicinity}</div>
               ` : ''}
-              ${place.distance ? `
-                <div style="
-                  font-size: 13px;
-                  color: ${C_TEXT_SECONDARY};
-                  font-weight: 500;
-                ">${place.distance}</div>
-              ` : ''}
+              <div style="
+                font-size: 13px;
+                color: ${C_TEXT_SECONDARY};
+                font-weight: 500;
+              ">${place.distance || 'Entfernung unbekannt'}</div>
               ${rating ? `
                 <div style="
                   font-size: 13px;
