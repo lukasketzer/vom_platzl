@@ -883,9 +883,23 @@
       margin-right: 16px;
     `;
 
-    // Assemble header - logo first (left), then text (right)
+    // Munich Skyline (positioned on the right)
+    const skylineElement = document.createElement('img');
+    skylineElement.src = chrome.runtime.getURL('Silhouette_of_Munich.svg-removebg-preview.png');
+    skylineElement.alt = 'Munich Skyline';
+    skylineElement.style.cssText = `
+      height: 50px;
+      width: auto;
+      margin-left: 16px;
+      margin-top: 10px;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+    `;
+
+    // Assemble header - logo first (left), then text (center), then skyline (right)
     header.appendChild(logoElement);        
-    header.appendChild(textContainer);          
+    header.appendChild(textContainer);
+    header.appendChild(skylineElement);          
 
     document.body.insertBefore(header, document.body.firstChild);
     console.log("🦁 Vom Platzl: Header injected");
