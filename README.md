@@ -18,6 +18,8 @@ We believe that a healthier city starts with providing a platform to discover wh
 
 ## What it does
 
+When we notice an intent of purchasing in the user's Google search query, the plugin takes action. We take over the Google Shopping overview and add an overlay that presents local stores that sell the product the user is looking for, plus some details to help the user transition to visiting the local store instead.
+
 ## How we built it
 The code is kept as simple and lightweight as possible.
 
