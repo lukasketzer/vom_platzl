@@ -819,119 +819,76 @@
   }
 
   function injectStickyHeader() {
-    // Prevent duplicate headers
     if (document.getElementById(HEADER_ID)) return;
 
-    // Find the Google search container or create header at top of page
-    const searchContainer = document.querySelector('#searchform')
-      || document.querySelector('form[action="/search"]')
-      || document.querySelector('body');
+    const searchContainer = document.querySelector('#searchform') 
+                          || document.querySelector('form[action="/search"]')
+                          || document.querySelector('body');
 
-    if (!searchContainer) {
-      console.log("Vom Platzl Header: No injection target found.");
-      return;
-    }
+    if (!searchContainer) return;
 
-    // Create the header (now Non-Sticky)
     const header = document.createElement('div');
     header.id = HEADER_ID;
-
+    
     header.style.cssText = `
-        position: relative; /* CHANGED: relative allows it to scroll with the page */
-        width: 100%;
-        background: ${C_BG};
-        color: #333333; /* CHANGED: Dark text for contrast on light background */
-        padding: 16px 32px;
-        /* z-index removed as it is less critical for relative, but kept just in case */
-        z-index: 10000; 
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        font-family: arial, sans-serif;
-        font-size: 14px;
-        box-sizing: border-box; /* Added to ensure padding doesn't overflow width */
-      `;
+      position: relative; 
+      width: 100%;
+      background: #ff9b54;
+      color: #ffffff;
+      padding: 0 32px;
+      height: 60px;
+      z-index: 10000; 
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(255, 155, 84, 0.2);
+      font-family: arial, sans-serif;
+      font-size: 14px;
+      box-sizing: border-box; 
+    `;
 
-    // Create text container
     const textContainer = document.createElement('div');
     textContainer.style.cssText = `
-        flex: 1;
-        display: flex;
-        align-items: center;
-        width: 100%;
-      `;
-
-    // Create text element
+      flex: 1; 
+      display: flex;
+      align-items: center;
+      width: 100%;
+    `;
+    
     const textElement = document.createElement('span');
     textElement.style.cssText = `
-        font-size: 18px;
-        font-weight: 500;
-        letter-spacing: 0.3px;
-        padding: 0 20px;
-        display: block;
-      `;
-    textElement.textContent = 'Auf Lager bei einem Local Hero!';
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      padding: 0 20px;
+      width: 100%;
+      display: block;
+      color: #ffffff;
+      position: relative; 
+      left: -15px; 
+      top: 5px;   
+    `;
+    textElement.textContent = 'Kauf bei Local Heroes!';
     
-    // Create walking time estimate element
-    const walkingTimeElement = document.createElement('div');
-    walkingTimeElement.id = 'vp-walking-time';
-    walkingTimeElement.style.cssText = `
-        font-size: 14px;
-        font-weight: 400;
-        color: #666666;
-        padding: 0 20px;
-        margin-top: 4px;
-        display: block;
-      `;
-    walkingTimeElement.textContent = ''; // Will be populated when data loads
-
     textContainer.appendChild(textElement);
-    textContainer.appendChild(walkingTimeElement);
 
-    // Create button with lion emoji
-    const button = document.createElement('button');
+    // Lion logo (positioned on the left)
+    const logoElement = document.createElement('img');
+    logoElement.src = chrome.runtime.getURL('logo.png'); 
+    logoElement.alt = 'Lion Logo';
+    logoElement.style.cssText = `
+      height: 32px;
+      width: auto;
+      object-fit: contain;
+      margin-right: 16px;
+    `;
 
-    // CHANGED: Button colors adjusted for Light Background (Darker borders/bg)
-    button.style.cssText = `
-        background: rgba(0, 0, 0, 0.05); /* Dark transparent bg */
-        border: 1px solid rgba(0, 0, 0, 0.1); /* Dark transparent border */
-        color: #333333; /* Dark emoji/text */
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 18px;
-        cursor: pointer;
-        transition: background 0.2s;
-        margin-right: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 40px;
-        height: 36px;
-      `;
-    
-    const logoImg = document.createElement('img');
-    logoImg.src = chrome.runtime.getURL('logo.png');
-    logoImg.alt = 'Vom Platzl Logo';
-    logoImg.style.cssText = 'height: 32px; width: auto; object-fit: contain;';
-    button.appendChild(logoImg);
-    button.setAttribute('aria-label', 'Vom Platzl');
-
-    // Button hover effect (adjusted for light theme)
-    button.addEventListener('mouseenter', () => {
-      button.style.background = 'rgba(0, 0, 0, 0.1)';
-    });
-    button.addEventListener('mouseleave', () => {
-      button.style.background = 'rgba(0, 0, 0, 0.05)';
-    });
-
-    // Assemble header - button first (left), then text (right)
-    header.appendChild(button);
-    header.appendChild(textContainer);
+    // Assemble header - logo first (left), then text (right)
+    header.appendChild(logoElement);        
+    header.appendChild(textContainer);          
 
     document.body.insertBefore(header, document.body.firstChild);
-
-    console.log("Vom Platzl: Header injected");
+    console.log("🦁 Vom Platzl: Header injected");
   }
 
   // --- RUNNER ---
