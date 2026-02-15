@@ -1,0 +1,9 @@
+.hideScroll {
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.hideScroll::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}

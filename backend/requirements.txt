@@ -4,3 +4,4 @@ requests
 python-dotenv
 geocoder
 google-genai
+sentence-transformers
