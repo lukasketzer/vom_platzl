@@ -1,0 +1,48 @@
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#vom-platzl-hero-section {
+  animation: slideIn 0.4s ease-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+#vom-platzl-hero-section:hover {
+  box-shadow: 0 4px 12px rgba(255, 155, 84, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.vp-wrapper {
+  grid-column: 2 / span 12 !important;
+}
+
+.vp-wrapper.vp-expanded {
+  grid-column: 2 / span 20 !important;
+}
+
+#vom-platzl-hero-section.vp-expanded {
+  cursor: default;
+  transform: translateY(0) !important;
+  box-shadow: 0 4px 16px rgba(255, 155, 84, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#vom-platzl-hero-section.vp-expanded:hover {
+  transform: translateY(0) !important;
+}
+
+/* Ensure visibility of expanded section */
+#vom-platzl-hero-section .vp-expanded-section {
+  display: none;
+}
+
+#vom-platzl-hero-section.vp-expanded .vp-expanded-section {
+  display: block;
+}

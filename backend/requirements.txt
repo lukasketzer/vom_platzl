@@ -1,6 +1,6 @@
 fastapi[standard]
-redis
 requests
 python-dotenv
 geocoder
 google-genai
+sentence-transformers

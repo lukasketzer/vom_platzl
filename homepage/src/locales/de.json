@@ -1,0 +1,93 @@
+{
+  "nav": {
+    "home": "Home",
+    "download": "Download",
+    "about": "Über uns"
+  },
+  "home": {
+    "title": "Vom Platzl",
+    "subtitle": "Entdecke die besten Orte in deiner Nähe",
+    "about": "Was ist Vom Platzl?",
+    "aboutText": "Vom Platzl ermöglicht es dir, lokale Alternativen zu den Produkten zu finden, die du online suchst. Immer mehr menschen bestellen ihre Produkte online, wobei lokale Geschäfte so viel mehr bieten und unterstützen. Mit Vom Platzl kannst du lokale Geschäfte entdecken, die das anbieten, was du suchst, und so die lokale Wirtschaft stärken. Starte deine Suche oben!",
+    "roadmap": "Roadmap",
+    "download": "Download"
+  },
+  "search": {
+    "backToHome": "Zurück zur Startseite",
+    "searching": "Suche läuft…",
+    "storesFound": "{{count}} Geschäfte gefunden",
+    "loading": "Geschäfte werden geladen…",
+    "noResults": "Keine Geschäfte gefunden",
+    "tryAnother": "Versuche einen anderen Suchbegriff.",
+    "fetchError": "Fehler beim Laden der Ergebnisse",
+    "unknownError": "Unbekannter Fehler",
+    "mapTitle": "Route zum Geschäft"
+  },
+  "searchBar": {
+    "locating": "Standort wird ermittelt...",
+    "prefix": "Suche nach ",
+    "suffix": " in meiner Nähe",
+    "terms": ["Kopfhörer", "Schuhe", "Nähmaschiene", "HDMI-Kabel", "Blumen", "Bücher", "Lampen", "Rucksäcke", "Kaffeemaschine", "Fahrrad", "Mountian Bike"]
+  },
+  "store": {
+    "unknown": "Unbekanntes Geschäft",
+    "openNow": "Jetzt geöffnet",
+    "closed": "Geschlossen",
+    "noReviews": "Keine Bewertungen verfügbar",
+    "openInMaps": "In Google Maps öffnen",
+    "anonymousUser": "Anonymer Nutzer",
+    "showLess": "weniger",
+    "showMore": "mehr"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "backHome": "Zurück zur Startseite"
+  },
+  "footer": {
+    "tagline": "Entdecke die besten Orte in deiner Nähe",
+    "links": "Links",
+    "contact": "Kontakt",
+    "copyright": "© 2026 Vom Platzl. Alle Rechte vorbehalten."
+  },
+  "about": {
+    "title": "Über uns",
+    "subtitle": "Lerne das Team hinter dem Projekt kennen."
+  },
+  "download": {
+    "title": "Download",
+    "subtitle": "Hol dir die Vom Platzl Browser-Erweiterung und entdecke lokale Geschäfte.",
+    "cardTitle": "Browser-Erweiterung",
+    "cardDescription": "Für Chrome und Firefox verfügbar. Direkt über das GitHub-Repository installieren.",
+    "buttonLabel": "Auf GitHub ansehen",
+    "hint": "Open Source • Kostenlos"
+  },
+  "roadmap": {
+    "milestones": [
+      {
+        "title": "Hackathon",
+        "date": "Nov 2025",
+        "description": "Unser Team lernt sich auf dem hackaTUM in München kennen und entwickelt die erste Version von Vom Platzl. Diese Version gewann den ersten Platz unter 241 anderen Teams."
+      },
+      {
+        "title": "Feinschliff und Homepage",
+        "date": "Feb 2026",
+        "description": "Nach dem Hackathon arbeiten wir weiter an der App, verbessern die Benutzeroberfläche und veröffentlichen diese Homepage, um Vom Platzl einem breiteren Publikum vorzustellen. Die Extension ist nun mit React geschrieben und das Backend wurde effizienter gestaltet."
+      },
+      {
+        "title": "Veröffentlichung im Chrome Web Store",
+        "date": "März 2026",
+        "description": "Die erste Version der Extension wird im Chrome Web Store veröffentlicht. Nutzer können nun Vom Platzl installieren und lokale Alternativen entdecken, während sie online einkaufen."
+      },
+      {
+        "title": "Integration in lokale Geschäfte",
+        "date": "2026 – 2027",
+        "description": "Auf lange Sicht wollen wir Nutzern ermöglichen, mit Vom Platzl genauere Informationen über lokale Geschäfte zu erhalten, wie z. B. aktuelle Angebote und Verfügbarkeiten im Inventar. Dafür planen wir Partnerschaften mit lokalen Geschäften und die Integration von deren Daten in unsere Plattform."
+      }
+    ]
+  },
+  "location": {
+    "noLocation": "Kein Standort verfügbar",
+    "available": "Standort verfügbar ({{source}})",
+    "cityCountry": "{{city}}, {{country}} ({{source}})"
+  }
+}
