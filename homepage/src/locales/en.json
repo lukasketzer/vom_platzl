@@ -1,0 +1,93 @@
+{
+  "nav": {
+    "home": "Home",
+    "download": "Download",
+    "about": "About Us"
+  },
+  "home": {
+    "title": "Vom Platzl",
+    "subtitle": "Discover the best places near you",
+    "about": "Our Motivation",
+    "aboutText": "Vom Platzl helps you find local alternatives to the products you're searching for online. More and more people are ordering their products online, yet local shops offer and support so much more. With Vom Platzl, you can discover local businesses that provide exactly what you need, allowing you to strengthen the local economy. Start your search above!",
+    "roadmap": "Roadmap",
+    "download": "Download"
+  },
+  "search": {
+    "backToHome": "Back to Home",
+    "searching": "Searching…",
+    "storesFound": "{{count}} stores found",
+    "loading": "Loading stores…",
+    "noResults": "No stores found",
+    "tryAnother": "Try a different search term.",
+    "fetchError": "Error loading results",
+    "unknownError": "Unknown error",
+    "mapTitle": "Route to store"
+  },
+  "searchBar": {
+    "locating": "Determining location...",
+    "prefix": "Search for ",
+    "suffix": " near me",
+    "terms": ["Headphones", "Shoes", "Sewing machine", "HDMI cable", "Flowers", "Books", "Lamps", "Backpacks", "Coffee machine", "Bicycle", "Mountain Bike"]
+  },
+  "store": {
+    "unknown": "Unknown store",
+    "openNow": "Open now",
+    "closed": "Closed",
+    "noReviews": "No reviews available",
+    "openInMaps": "Open in Google Maps",
+    "anonymousUser": "Anonymous user",
+    "showLess": "less",
+    "showMore": "more"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "backHome": "Back to Home"
+  },
+  "footer": {
+    "tagline": "Discover the best places near you",
+    "links": "Links",
+    "contact": "Contact",
+    "copyright": "© 2026 Vom Platzl. All rights reserved."
+  },
+  "about": {
+    "title": "About Us",
+    "subtitle": "Meet the team behind the project."
+  },
+  "download": {
+    "title": "Download",
+    "subtitle": "Get the Vom Platzl browser extension and start discovering local stores today.",
+    "cardTitle": "Browser Extension",
+    "cardDescription": "Available for Chrome and Firefox. Install directly from the GitHub repository.",
+    "buttonLabel": "View on GitHub",
+    "hint": "Open source • Free to use"
+  },
+  "roadmap": {
+    "milestones": [
+      {
+        "title": "Hackathon",
+        "date": "Nov 2025",
+        "description": "Our team meets at hackaTUM in Munich and builds the first version of Vom Platzl. This version won first place among 241 other teams."
+      },
+      {
+        "title": "Polish & Homepage",
+        "date": "Feb 2026",
+        "description": "After the hackathon we continue improving the app, refine the UI, and launch this homepage to introduce Vom Platzl to a wider audience. The extension is now built with React and the backend has been made more efficient."
+      },
+      {
+        "title": "Chrome Web Store Release",
+        "date": "March 2026",
+        "description": "The first version of the extension is published on the Chrome Web Store. Users can now install Vom Platzl and discover local alternatives while shopping online."
+      },
+      {
+        "title": "Integration with Local Stores",
+        "date": "2026 – 2027",
+        "description": "Long-term, we want to let users access more detailed information about local shops — such as current offers and live inventory. We plan partnerships with local businesses and integration of their data into our platform."
+      }
+    ]
+  },
+  "location": {
+    "noLocation": "No location available",
+    "available": "Location available ({{source}})",
+    "cityCountry": "{{city}}, {{country}} ({{source}})"
+  }
+}

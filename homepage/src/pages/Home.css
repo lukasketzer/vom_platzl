@@ -1,0 +1,10 @@
+.landing-page {
+  height: 100vh;
+  width: 100%;
+  /* Single color transparent overlay above the background image */
+  background: 
+    linear-gradient(rgba(207, 107, 0, 0.65), rgba(207, 107, 0, 0.65)),
+    url('/munich.jpg') no-repeat center center fixed;
+  background-size: cover;
+  background-position: center;
+}
